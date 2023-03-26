@@ -1,0 +1,9 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "MyBlog API",
+        "description": "API for MyBlog",
+        "version": "1.0.0"
+    },
+    "paths": {}
+}
