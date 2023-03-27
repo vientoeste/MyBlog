@@ -2,16 +2,31 @@ import 'dotenv/config';
 // intended to be used with block scope
 const validateEnvVars = () => {
   const RequiredEnvironmentVars = [
+    'MYSQL_HOST',
+    'MYSQL_ID',
+    'MYSQL_PW',
+    'MYSQL_DB',
     'PORT',
     'NODE_ENV',
+    'MYSQL_PORT',
   ];
   const {
     PORT,
     NODE_ENV,
+    MYSQL_HOST,
+    MYSQL_ID,
+    MYSQL_PW,
+    MYSQL_DB,
+    MYSQL_PORT,
   } = process.env;
   const invalidParams = [
     PORT,
     NODE_ENV,
+    MYSQL_HOST,
+    MYSQL_ID,
+    MYSQL_PW,
+    MYSQL_DB,
+    MYSQL_PORT,
   ].map((param, index) => {
     if (typeof param === 'undefined' || param === null || param === '') {
       return RequiredEnvironmentVars[index];
@@ -30,6 +45,7 @@ import http2 from 'http2';
 import http2Express from 'http2-express-bridge';
 import morgan from 'morgan';
 import { serve, setup } from 'swagger-ui-express';
+import { connectToDb } from './models';
 import swaggerDocument from './swagger.json';
 
 class CustomError extends Error {
@@ -50,6 +66,7 @@ class CustomError extends Error {
 
 const app = http2Express(express);
 
+connectToDb();
 app.use(morgan('dev'));
 
 const serverOption = {
