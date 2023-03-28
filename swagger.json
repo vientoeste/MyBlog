@@ -90,6 +90,30 @@
             "delete": {
                 "description": "댓글 삭제"
             }
+        },
+        "/posts/drafts": {
+            "get": {
+                "description": "모든 임시 저장 포스트 조회"
+            },
+            "post": {
+                "description": "새 포스트 임시 저장"
+            }
+        },
+        "/posts/drafts/:post_uuid": {
+            "get": {
+                "description": "특정 임시 저장 포스트 정보 조회"
+            },
+            "put": {
+                "description": "특정 임시 저장 포스트 정보 수정"
+            },
+            "delete": {
+                "description": "특정 임시 저장 포스트 삭제"
+            }
+        },
+        "/posts/drafts/:post_uuid/publish": {
+            "post": {
+                "description": "특정 임시 저장 포스트 게시"
+            }
         }
     }
 }
