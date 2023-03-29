@@ -76,6 +76,11 @@ const serverOption = {
 
 app.use('/api-docs', serve, setup(swaggerDocument));
 
+app.use(express.static(path.join(__dirname, 'build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '/build/index.html'));
+});
+
 app.use((req: Request, _res: Response, next: NextFunction) => {
   const error = new CustomError(`Not existing router: ${req.method} ${req.url}`);
   error.status = 404;
