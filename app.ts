@@ -45,6 +45,7 @@ import http2 from 'http2';
 import http2Express from 'http2-express-bridge';
 import morgan from 'morgan';
 import { serve, setup } from 'swagger-ui-express';
+import bodyParser from 'body-parser';
 import { connectToDb } from './models';
 import swaggerDocument from './swagger.json';
 
@@ -68,6 +69,7 @@ const app = http2Express(express);
 
 connectToDb();
 app.use(morgan('dev'));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/favicon.ico', express.static('build/static/favicon.ico'));
 
 const serverOption = {
