@@ -68,6 +68,7 @@ const app = http2Express(express);
 
 connectToDb();
 app.use(morgan('dev'));
+app.use('/favicon.ico', express.static('build/static/favicon.ico'));
 
 const serverOption = {
   key: undefined,
