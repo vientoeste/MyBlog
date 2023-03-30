@@ -1,29 +1,35 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { v5 } from 'uuid';
+import { CustomError } from '../app';
 import { CreatePostDTO } from '../interfaces/ReqBody';
 import { getDateForDb } from '../lib/util';
-import { createNewPostTX } from '../models/post';
+import { createNewPostTx } from '../models/post';
 
 const router = Router();
 
-router.route('/').post((req: Request, res: Response, next: NextFunction) => {
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+router.route('/').post(async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { title, content, categoryId } = req.body as CreatePostDTO;
+    if (!title || !content || !categoryId) {
+      res.status(400).json({
+        error: 'invalid params',
+      });
+      next(new CustomError('invalid param', 400));
+    }
     const now = getDateForDb();
     const postUuid = v5(title.concat(now), process.env.NAMESPACE_UUID as string);
-    const isSucceed = createNewPostTX(postUuid, title, content, categoryId, now);
-    if (isSucceed) {
-      return res.send({
+    await createNewPostTx(postUuid, title, content, categoryId, now).then(() => {
+      res.status(201).json({
+        message: 'successfully created a post',
         uuid: postUuid,
       });
-    } else {
-      return res.send({
-        error: 'query error',
-      });
-    }
+    });
   } catch (e) {
     console.error(e);
-    next(e);
+    res.status(500).json({
+      error: e,
+    });
   }
 });
 

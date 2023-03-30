@@ -1,4 +1,4 @@
-import { connection } from '../models';
+import { connection, executeMultipleQueriesTx } from '../models';
 
 const newPostInsert = `INSERT INTO blog_este_dev.posts
 (uuid, title, content, category_id, created_at, is_published)

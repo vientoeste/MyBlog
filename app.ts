@@ -9,6 +9,7 @@ const validateEnvVars = () => {
     'PORT',
     'NODE_ENV',
     'MYSQL_PORT',
+    'NAMESPACE_UUID',
   ];
   const {
     PORT,
@@ -18,6 +19,7 @@ const validateEnvVars = () => {
     MYSQL_PW,
     MYSQL_DB,
     MYSQL_PORT,
+    NAMESPACE_UUID,
   } = process.env;
   const invalidParams = [
     PORT,
@@ -27,6 +29,7 @@ const validateEnvVars = () => {
     MYSQL_PW,
     MYSQL_DB,
     MYSQL_PORT,
+    NAMESPACE_UUID,
   ].map((param, index) => {
     if (typeof param === 'undefined' || param === null || param === '') {
       return RequiredEnvironmentVars[index];
@@ -46,10 +49,12 @@ import http2Express from 'http2-express-bridge';
 import morgan from 'morgan';
 import { serve, setup } from 'swagger-ui-express';
 import bodyParser from 'body-parser';
+
+import postRouter from './controllers/post';
 import { connectToDb } from './models';
 import swaggerDocument from './swagger.json';
 
-class CustomError extends Error {
+export class CustomError extends Error {
   constructor(message: string, status?: number) {
     super(message);
     Object.defineProperty(this, 'name', {
@@ -80,6 +85,7 @@ const serverOption = {
 app.use('/api-docs', serve, setup(swaggerDocument));
 
 app.use(express.static(path.join(__dirname, 'build')));
+app.use('/posts', postRouter);
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/build/index.html'));
 });
