@@ -53,6 +53,7 @@ import bodyParser from 'body-parser';
 import postRouter from './controllers/post';
 import { connectToDb } from './models';
 import swaggerDocument from './swagger.json';
+import axios from 'axios';
 
 export class CustomError extends Error {
   constructor(message: string, status?: number) {
@@ -83,6 +84,21 @@ const serverOption = {
 };
 
 app.use('/api-docs', serve, setup(swaggerDocument));
+
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
+app.use('/api-proxy', async (req, res) => {
+  const apiUrl = `https://localhost:${process.env.PORT as string}/api${req.url}`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-api-key': process.env.PRIVATE_API_KEY,
+  };
+  try {
+    const response = await axios.get(apiUrl, { headers });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+});
 
 app.use(express.static(path.join(__dirname, 'build')));
 app.use('/posts', postRouter);
