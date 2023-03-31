@@ -85,6 +85,9 @@ const serverOption = {
 
 app.use('/api-docs', serve, setup(swaggerDocument));
 
+app.use(express.static(path.join(__dirname, 'build')));
+app.use('/posts', postRouter);
+
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 app.use('/api-proxy', async (req, res) => {
   const apiUrl = `https://localhost:${process.env.PORT as string}/api${req.url}`;
@@ -100,8 +103,6 @@ app.use('/api-proxy', async (req, res) => {
   }
 });
 
-app.use(express.static(path.join(__dirname, 'build')));
-app.use('/posts', postRouter);
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '/build/index.html'));
 });
