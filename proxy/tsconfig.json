@@ -14,5 +14,5 @@
     "sourceMap": true,
     "removeComments": true
   },
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["server/node_modules", "server/dist"]
 }

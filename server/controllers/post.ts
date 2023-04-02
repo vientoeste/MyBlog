@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { v5 } from 'uuid';
-import { CustomError } from '../app';
+import { CustomError } from '../lib/util';
 import { CreatePostDTO } from '../interfaces/ReqBody';
 import { getDateForDb } from '../lib/util';
 import { createNewPostTx } from '../models/post';

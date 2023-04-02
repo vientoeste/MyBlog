@@ -50,27 +50,12 @@ import http2Express from 'http2-express-bridge';
 import morgan from 'morgan';
 import { serve, setup } from 'swagger-ui-express';
 import bodyParser from 'body-parser';
+import axios from 'axios';
 
+import { CustomError } from './lib/util';
 import postRouter from './controllers/post';
 import { connectToDb } from './models';
 import swaggerDocument from './swagger.json';
-import axios from 'axios';
-
-export class CustomError extends Error {
-  constructor(message: string, status?: number) {
-    super(message);
-    Object.defineProperty(this, 'name', {
-      configurable: true,
-      writable: false,
-      value: 'Error',
-    });
-    if (status) {
-      this.status = status;
-    }
-  }
-
-  status?: number;
-}
 
 const app = http2Express(express);
 
