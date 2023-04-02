@@ -44,6 +44,7 @@ const validateEnvVars = () => {
 validateEnvVars();
 
 import express, { NextFunction, Request, Response } from 'express';
+import path from 'path';
 import http2 from 'http2';
 import http2Express from 'http2-express-bridge';
 import morgan from 'morgan';
