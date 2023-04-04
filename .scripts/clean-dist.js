@@ -1,10 +1,13 @@
 const { rmSync } = require("fs");
 const { resolve } = require("path");
 
-const distFolder = resolve(__dirname, "..", "dist");
+const serverDistFolder = resolve(__dirname, "..", "server", "dist");
+const proxyDistFolder = resolve(__dirname, "..", "server", "dist");
 
 try {
-  rmSync(distFolder, { recursive: true });
+  rmSync(proxyDistFolder, { recursive: true });
+  rmSync(serverDistFolder, { recursive: true });
 } catch (err) {
-  console.error(`Error while deleting ${distFolder}.`);
+  console.error(`Error while deleting ${proxyDistFolder}.`);
+  console.error(`Error while deleting ${serverDistFolder}.`);
 }

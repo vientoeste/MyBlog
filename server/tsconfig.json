@@ -12,7 +12,11 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "sourceMap": true,
-    "removeComments": true
+    "removeComments": true,
+    "ignoreDeprecations": "5.0"
   },
-  "exclude": ["server/node_modules", "server/dist"]
+  "exclude": [
+    "server/node_modules",
+    "server/dist"
+  ]
 }

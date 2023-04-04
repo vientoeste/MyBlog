@@ -1,11 +1,11 @@
 const {
-    existsSync,
-    lstatSync,
-    writeFileSync,
-    readFileSync,
-    mkdirSync,
-    readdirSync,
-  } = require('fs');
+  existsSync,
+  lstatSync,
+  writeFileSync,
+  readFileSync,
+  mkdirSync,
+  readdirSync,
+} = require('fs');
 const { join, basename, resolve } = require("path");
 
 const copyFileSync = (source, target) => {
@@ -36,11 +36,10 @@ const copyFolderRecursiveSync = (source, target) => {
   }
 }
 
-const source = resolve(__dirname, "..", "public");
-const target = resolve(__dirname, "..", "dist");
+const source = resolve(__dirname, "..", "client", "public");
+const target = resolve(__dirname, "..", "proxy", "dist");
 try {
   copyFolderRecursiveSync(source, target);
 } catch (e) {
   console.error("Failed to copy over public", e);
 }
-  
