@@ -1,7 +1,7 @@
 import React from 'react';
 import Navigation from './Navigation';
 import Categories from './Categories';
-import Articles from './Articles';
+import Posts from './Posts';
 
 function App() {
   return (
@@ -11,8 +11,8 @@ function App() {
         <div className="categories">
           <Categories />
         </div>
-        <div className="articles">
-          <Articles />
+        <div className="posts">
+          <Posts />
         </div>
       </div>
     </div>

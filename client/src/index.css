@@ -45,7 +45,7 @@ nav ul li.search input {
   grid-area: 1 / 1 / 2 / 2;
 }
 
-.articles {
+.posts {
   margin-top: 2rem;
   grid-area: 1 / 2 / 2 / 3;
 }
