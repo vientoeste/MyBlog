@@ -5,16 +5,19 @@ const validateEnvVars = () => {
     'PORT',
     'NODE_ENV',
     'PRIVATE_API_KEY',
+    'API_SERVER_URL',
   ];
   const {
     PORT,
     NODE_ENV,
     PRIVATE_API_KEY,
+    API_SERVER_URL,
   } = process.env;
   const invalidParams = [
     PORT,
     NODE_ENV,
     PRIVATE_API_KEY,
+    API_SERVER_URL,
   ].map((param, index) => {
     if (typeof param === 'undefined' || param === null || param === '') {
       return RequiredEnvironmentVars[index];
@@ -54,31 +57,31 @@ app.use('/api-docs', serve, setup(swaggerDocument));
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 app.use('/api-proxy', async (req, res, next) => {
-  const apiUrl = `https://localhost:${process.env.PORT as string}/${req.url}`;
+  const apiUrl = `${process.env.API_SERVER_URL as string}${req.url}`;
   const headers = {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/x-www-form-urlencoded',
     'x-api-key': process.env.PRIVATE_API_KEY,
   };
   try {
     switch (req.method) {
-      case 'get':
+      case 'GET':
         if (req.url === '/') next();
         const getRes = await axios.get(apiUrl, { headers });
         res.json(getRes.data);
         break;
-      case 'post':
+      case 'POST':
         const postRes = await axios.post(apiUrl, req.body, { headers });
         res.json(postRes.data);
         break;
-      case 'delete':
+      case 'DELETE':
         const delRes = await axios.delete(apiUrl, { headers });
         res.json(delRes.data);
         break;
-      case 'put':
+      case 'PUT':
         const putRes = await axios.put(apiUrl, req.body, { headers });
         res.json(putRes.data);
         break;
-      case 'patch':
+      case 'PATCH':
         const patchRes = await axios.patch(apiUrl, { headers });
         res.json(patchRes.data);
         break;
