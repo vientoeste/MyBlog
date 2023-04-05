@@ -27,9 +27,7 @@ router.route('/').post(async (req: Request, res: Response, next: NextFunction) =
     });
   } catch (e) {
     console.error(e);
-    res.status(500).json({
-      error: e,
-    });
+    next(e);
   }
 });
 
