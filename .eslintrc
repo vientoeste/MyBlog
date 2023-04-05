@@ -14,26 +14,52 @@
     "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "import"],
+  "plugins": [
+    "@typescript-eslint",
+    "import"
+  ],
   "rules": {
     "import/prefer-default-export": "off",
-    "import/extensions": ["off"],
+    "import/extensions": [
+      "off"
+    ],
     "no-continue": "off",
     "space-before-blocks": "error",
-    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
-    "eol-last": ["error", "always"],
-    "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 1 }],
-    "arrow-body-style": ["error", "as-needed"]
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": true
+      }
+    ],
+    "eol-last": [
+      "error",
+      "always"
+    ],
+    "no-multiple-empty-lines": [
+      "error",
+      {
+        "max": 1,
+        "maxEOF": 1
+      }
+    ],
+    "arrow-body-style": [
+      "error",
+      "as-needed"
+    ]
   },
   "overrides": [
     {
-      "files": ["proxy/**/*"],
+      "files": [
+        "proxy/**/*"
+      ],
       "parserOptions": {
         "project": "./proxy/tsconfig.json"
       }
     },
     {
-      "files": ["server/**/*"],
+      "files": [
+        "server/**/*"
+      ],
       "parserOptions": {
         "project": "./server/tsconfig.json"
       }
