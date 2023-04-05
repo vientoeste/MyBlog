@@ -65,25 +65,24 @@ app.use('/api-proxy', async (req, res, next) => {
   try {
     switch (req.method) {
       case 'GET':
-        if (req.url === '/') next();
         const getRes = await axios.get(apiUrl, { headers });
-        res.json(getRes.data);
+        res.status(getRes.status).json(getRes.data);
         break;
       case 'POST':
         const postRes = await axios.post(apiUrl, req.body, { headers });
-        res.json(postRes.data);
+        res.status(postRes.status).json(postRes.data);
         break;
       case 'DELETE':
         const delRes = await axios.delete(apiUrl, { headers });
-        res.json(delRes.data);
+        res.status(delRes.status).json(delRes.data);
         break;
       case 'PUT':
         const putRes = await axios.put(apiUrl, req.body, { headers });
-        res.json(putRes.data);
+        res.status(putRes.status).json(putRes.data);
         break;
       case 'PATCH':
         const patchRes = await axios.patch(apiUrl, { headers });
-        res.json(patchRes.data);
+        res.status(patchRes.status).json(patchRes.data);
         break;
       default:
         res.status(400).json({ message: 'request method err' });
