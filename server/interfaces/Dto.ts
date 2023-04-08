@@ -1,4 +1,4 @@
-export interface PostDto {
+export interface PostDTO {
   uuid: string;
   title: string;
   content: string;
@@ -6,7 +6,7 @@ export interface PostDto {
 }
 
 export interface CreatePostDTO {
-  title: string,
-  content: string,
-  categoryId: string,
+  title: string;
+  content: string;
+  categoryId: string;
 }

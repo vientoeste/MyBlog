@@ -1,7 +1,7 @@
 import Query from 'mysql2/typings/mysql/lib/protocol/sequences/Query';
 import { connection, executeMultipleQueriesTx } from '.';
 import { PostEntity } from '../interfaces/Entity';
-import { PostDto } from '../interfaces/Dto';
+import { PostDTO } from '../interfaces/Dto';
 import { RowDataPacket } from 'mysql2';
 
 const newPostInsert = `INSERT INTO blog_este_dev.posts
@@ -26,7 +26,7 @@ WHERE 1
 AND is_published = 1
 ORDER BY updated_at DESC
 LIMIT 0, 10`;
-export const getExistingPosts = (callback: (error: Error | null, results: PostDto[]) => void) => {
+export const getExistingPosts = (callback: (error: Error | null, results: PostDTO[]) => void) => {
   connection
     .query(getPostsQuery, (e: Query.QueryError | null, r: PostEntity[]) => {
       if (e) {
@@ -50,7 +50,7 @@ WHERE 1
 AND is_published = 1
 AND uuid = UUID_TO_BIN(?)
 LIMIT 1`;
-export const getSinglePost = (uuid: string, callback: (error: Error | null, result: PostDto | null) => void) => {
+export const getSinglePost = (uuid: string, callback: (error: Error | null, result: PostDTO | null) => void) => {
   connection
     .query(getPostByUuid, [uuid], (e: Query.QueryError | null, r: RowDataPacket[]) => {
       if (e) {
@@ -64,6 +64,6 @@ export const getSinglePost = (uuid: string, callback: (error: Error | null, resu
         title: post.title,
         content: post.content,
         categoryId: post.category_id,
-      } as PostDto);
+      } as PostDTO);
     });
 };
