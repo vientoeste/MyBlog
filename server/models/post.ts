@@ -4,10 +4,12 @@ import { PostEntity } from '../interfaces/Entity';
 import { PostDTO } from '../interfaces/Dto';
 import { RowDataPacket } from 'mysql2';
 
-const newPostInsert = `INSERT INTO blog_este_dev.posts
+const newPostInsert = `
+INSERT INTO ${process.env.MYSQL_DB as string}.posts
 (uuid, title, content, category_id, created_at, is_published)
 VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, 1)`;
-const newPostHistoryInsert = `INSERT INTO blog_este_dev.post_histories
+const newPostHistoryInsert = `
+INSERT INTO ${process.env.MYSQL_DB as string}.post_histories
 (post_uuid, title, content, category_id, created_at, is_published)
 VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, 1)`;
 export const createNewPostTx = async (postUuid: string, title: string, content: string, categoryId: string, now: string) => {
@@ -19,7 +21,8 @@ export const createNewPostTx = async (postUuid: string, title: string, content: 
   );
 };
 
-const getPostsQuery = `SELECT
+const getPostsQuery = `
+SELECT
 BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
 FROM blog_este_dev.posts
 WHERE 1
