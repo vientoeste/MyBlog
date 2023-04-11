@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { v5, validate } from 'uuid';
 import { CustomError } from '../lib/util';
-import { CreatePostDTO } from '../interfaces/Dto';
+import { CreatePostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { getDateForDb } from '../lib/util';
-import { createNewPostTx, getExistingPosts, getSinglePost } from '../models/post';
+import { createNewPostTx, getExistingPosts, getSinglePost, updatePostTx } from '../models/post';
 
 const router = Router();
 
@@ -53,6 +53,24 @@ router.route('/:post_uuid')
       });
     } catch (e) {
       console.error(e);
+      next(e);
+    }
+  })
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  .put(async (req, res, next) => {
+    try {
+      const { post_uuid: postUuid } = req.params;
+      if (!postUuid || !validate(postUuid)) {
+        new CustomError('invalid params', 400);
+      }
+
+      // [TODO] subdivide http stat code - not updated, updated, ...
+      await updatePostTx(postUuid, req.body as UpdatePostDTO);
+
+      res.status(201).json({
+        message: 'ok',
+      });
+    } catch (e) {
       next(e);
     }
   });

@@ -10,3 +10,9 @@ export interface CreatePostDTO {
   content: string;
   categoryId: string;
 }
+
+export interface UpdatePostDTO {
+  title?: string;
+  content?: string;
+  categoryId?: string;
+}
