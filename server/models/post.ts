@@ -17,7 +17,6 @@ export const createNewPostTx = async (postUuid: string, title: string, content: 
     connection,
     [newPostInsert, newPostHistoryInsert],
     [[postUuid, title, content, categoryId, now], [postUuid, title, content, categoryId, now]],
-    2,
   );
 };
 
@@ -97,7 +96,6 @@ export const updatePostTx = async (uuid: string, postColumnsToUpdate: UpdatePost
       [...valuesToUpdate.flat(), uuid],
       [],
     ],
-    2,
   );
 };
 

@@ -21,9 +21,9 @@ export const connectToDb = () => {
 
 const recursiveTx = (
   conn: Connection,
-  queryCount: number,
   queries: string[],
   queryValues: string[][],
+  queryCount = queries.length,
 ) => new Promise((resolve, reject) => {
   conn.beginTransaction((err) => {
     if (err) {
@@ -69,10 +69,10 @@ export const executeMultipleQueriesTx = (
   conn: Connection,
   queries: string[],
   queryVals: string[][],
-  queryCount: number,
+  queryCount = queries.length,
 ) => new Promise((resolve, reject) => {
   if (queries.length !== queryCount || queryVals.length !== queryCount) reject(new Error('invalid param'));
-  recursiveTx(conn, queryCount, queries, queryVals)
+  recursiveTx(conn, queries, queryVals)
     .then((result) => {
       resolve(result);
     })
