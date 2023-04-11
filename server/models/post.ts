@@ -101,24 +101,24 @@ export const updatePostTx = async (uuid: string, postColumnsToUpdate: UpdatePost
 
 const getPostsQuery = `
 SELECT
-BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
-FROM blog_este_dev.posts
+  BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
+FROM ${process.env.MYSQL_DB as string}.posts
 WHERE 1
-AND is_published = 1
+  AND is_published = 1
 ORDER BY updated_at DESC
 LIMIT 0, 10`;
 export const getExistingPosts = (callback: (error: Error | null, results: PostDTO[]) => void) => {
   connection
-    .query(getPostsQuery, (e: Query.QueryError | null, r: PostEntity[]) => {
+    .query(getPostsQuery, (e: Query.QueryError | null, queryRes: PostEntity[]) => {
       if (e) {
         console.error(e);
         callback(e, []);
       }
-      const posts = r.map((element) => ({
-        uuid: element.uuid,
-        title: element.title,
-        content: element.content,
-        categoryId: element.category_id,
+      const posts = queryRes.map((post) => ({
+        uuid: post.uuid,
+        title: post.title,
+        content: post.content,
+        categoryId: post.category_id,
       }));
       callback(null, posts);
     });
@@ -126,20 +126,20 @@ export const getExistingPosts = (callback: (error: Error | null, results: PostDT
 
 const getPostByUuid = `
 SELECT
-BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
-FROM blog_este_dev.posts
+  BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
+FROM ${process.env.MYSQL_DB as string}.posts
 WHERE 1
-AND is_published = 1
-AND uuid = UUID_TO_BIN(?)
+  AND is_published = 1
+  AND uuid = UUID_TO_BIN(?)
 LIMIT 1`;
 export const getSinglePost = (uuid: string, callback: (error: Error | null, result: PostDTO | null) => void) => {
   connection
-    .query(getPostByUuid, [uuid], (e: Query.QueryError | null, r: RowDataPacket[]) => {
+    .query(getPostByUuid, [uuid], (e: Query.QueryError | null, queryRes: RowDataPacket[]) => {
       if (e) {
         console.error(e);
         callback(e, null);
       }
-      const post = r[0] as PostEntity;
+      const post = queryRes[0] as PostEntity;
 
       callback(null, {
         uuid: post.uuid,
