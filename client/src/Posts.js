@@ -51,7 +51,7 @@ function Posts() {
     <div className="posts">
       <h2>Recent Articles</h2>
       <ul>
-        {posts.map(post => (
+        {Array.isArray(posts) && posts.length !== 0 ? posts.map(post => (
           <li key={post.uuid}>
             <button onClick={() => handlePostClick(post.uuid)}>
               <h3>{post.title}</h3>
@@ -59,7 +59,7 @@ function Posts() {
               <p>{post.categoryId}</p>
             </button>
           </li>
-        ))}
+        )) : <p>no contents</p>}
       </ul>
     </div>
   );
