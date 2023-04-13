@@ -52,6 +52,7 @@ import bodyParser from 'body-parser';
 
 import { CustomError } from './lib/util';
 import postRouter from './controllers/post';
+import categoryRouter from './controllers/category';
 import { connectToDb } from './models';
 
 const app = http2Express(express);
@@ -67,6 +68,7 @@ const serverOption = {
 
 app.use(express.static(path.join(__dirname, 'build')));
 app.use('/posts', postRouter);
+app.use('/categories', categoryRouter);
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
   const error = new CustomError(`Not existing router: ${req.method} ${req.url}`);

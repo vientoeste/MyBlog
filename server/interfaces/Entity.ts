@@ -4,3 +4,7 @@ export interface PostEntity {
   content: string;
   category_id: number;
 }
+export interface CategoryEntity {
+  id: number;
+  name: string;
+}

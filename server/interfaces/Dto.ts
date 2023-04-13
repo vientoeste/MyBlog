@@ -16,3 +16,8 @@ export interface UpdatePostDTO {
   content?: string;
   categoryId?: string;
 }
+
+export interface CategoryDTO {
+  id: number;
+  name: string;
+}
