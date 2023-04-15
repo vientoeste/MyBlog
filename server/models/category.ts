@@ -6,8 +6,7 @@ import { CategoryEntity } from '../interfaces/Entity';
 const getCategoriesQuery = `
 SELECT
   id, name
-FROM ${process.env.MYSQL_DB as string}.categories
-`;
+FROM ${process.env.MYSQL_DB as string}.categories`;
 export const getCategories = (callback: (error: Error | null, results: CategoryDTO[]) => void) => {
   connection
     .query(getCategoriesQuery, (e: Query.QueryError | null, queryRes: CategoryEntity[]) => {

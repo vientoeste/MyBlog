@@ -3,13 +3,13 @@ import { v5, validate } from 'uuid';
 import { CustomError } from '../lib/util';
 import { CreatePostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { getDateForDb } from '../lib/util';
-import { createNewPostTx, getExistingPosts, getSinglePost, updatePostTx } from '../models/post';
+import { createNewPostTx, fetchPreviewPosts, fetchSinglePost, updatePostTx } from '../models/post';
 
 const router = Router();
 
 router.route('/')
   .get((req, res, next) => {
-    getExistingPosts((e, posts) => {
+    fetchPreviewPosts((e, posts) => {
       if (e) {
         console.error(e);
         next(e);
@@ -45,11 +45,11 @@ router.route('/:post_uuid')
       if (!postUuid || !validate(postUuid)) {
         new CustomError('invalid params', 400);
       }
-      getSinglePost(postUuid, (e, r) => {
+      fetchSinglePost(postUuid, (e, post) => {
         if (e) {
           new CustomError('query error: no contents', 404);
         }
-        res.status(200).json(r);
+        res.status(200).json(post);
       });
     } catch (e) {
       console.error(e);

@@ -3,6 +3,7 @@ import { connection, executeMultipleQueriesTx } from '.';
 import { PostEntity } from '../interfaces/Entity';
 import { PostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { RowDataPacket } from 'mysql2';
+import { CustomError } from '../lib/util';
 
 const newPostInsert = `
 INSERT INTO ${process.env.MYSQL_DB as string}.posts
@@ -61,8 +62,7 @@ const historyQueryBuilder = (
     SELECT uuid, '${columns.updateVal.join('\', \'')}'${columns.toLeave.length !== 0 ? ', '.concat(columns.toLeave.join(', ')) : ''},
     is_published, NOW()
       FROM ${process.env.MYSQL_DB as string}.posts
-      WHERE BIN_TO_UUID(uuid)='${uuid}'
-  `;
+      WHERE BIN_TO_UUID(uuid)='${uuid}'`;
 };
 const createUpdateClause = (
   { title, content, categoryId }: UpdatePostDTO,
@@ -99,17 +99,17 @@ export const updatePostTx = async (uuid: string, postColumnsToUpdate: UpdatePost
   );
 };
 
-const getPostsQuery = `
+const fetchPreviewPostsSQL = `
 SELECT
   BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
 FROM ${process.env.MYSQL_DB as string}.posts
 WHERE 1
   AND is_published = 1
 ORDER BY updated_at DESC
-LIMIT 0, 10`;
-export const getExistingPosts = (callback: (error: Error | null, results: PostDTO[]) => void) => {
+LIMIT 0, 5`;
+export const fetchPreviewPosts = (callback: (error: Error | null, results: PostDTO[]) => void) => {
   connection
-    .query(getPostsQuery, (e: Query.QueryError | null, queryRes: PostEntity[]) => {
+    .query(fetchPreviewPostsSQL, (e: Query.QueryError | null, queryRes: PostEntity[]) => {
       if (e) {
         console.error(e);
         callback(e, []);
@@ -124,20 +124,25 @@ export const getExistingPosts = (callback: (error: Error | null, results: PostDT
     });
 };
 
-const getPostByUuid = `
+const fetchSinglePostSQL = `
 SELECT
   BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
 FROM ${process.env.MYSQL_DB as string}.posts
 WHERE 1
   AND is_published = 1
-  AND uuid = UUID_TO_BIN(?)
-LIMIT 1`;
-export const getSinglePost = (uuid: string, callback: (error: Error | null, result: PostDTO | null) => void) => {
+  AND uuid = UUID_TO_BIN(?)`;
+export const fetchSinglePost = (uuid: string, callback: (error: Error | null, result: PostDTO | null) => void) => {
   connection
-    .query(getPostByUuid, [uuid], (e: Query.QueryError | null, queryRes: RowDataPacket[]) => {
+    .query(fetchSinglePostSQL, [uuid], (e: Query.QueryError | null, queryRes: RowDataPacket[]) => {
       if (e) {
         console.error(e);
         callback(e, null);
+      }
+      if (queryRes.length === 0) {
+        callback(new CustomError('no contents', 404), null);
+      }
+      if (queryRes.length === 2) {
+        callback(new CustomError('internal server error', 500), null);
       }
       const post = queryRes[0] as PostEntity;
 
