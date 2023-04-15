@@ -124,6 +124,35 @@ export const fetchPreviewPosts = (callback: (error: Error | null, results: PostD
     });
 };
 
+const fetchPostsByCategorySQL = `
+SELECT
+  BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
+FROM ${process.env.MYSQL_DB as string}.posts
+WHERE 1
+  AND is_published = 1
+  AND category_id = ?
+ORDER BY updated_at DESC
+LIMIT 0, 10`;
+export const fetchPostsByCategory = (categoryId: string, callback: (error: Error | null, results: PostDTO[]) => void) => {
+  connection
+    .query(fetchPostsByCategorySQL, [categoryId], (e: Query.QueryError | null, queryRes: RowDataPacket[]) => {
+      if (e) {
+        console.error(e);
+        callback(e, []);
+      }
+      const posts = queryRes.map((rowData) => {
+        const post = rowData as PostEntity;
+        return {
+          uuid: post.uuid,
+          title: post.title,
+          content: post.content,
+          categoryId: post.category_id,
+        };
+      });
+      callback(null, posts);
+    });
+};
+
 const fetchSinglePostSQL = `
 SELECT
   BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
