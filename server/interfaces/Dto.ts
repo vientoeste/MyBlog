@@ -21,3 +21,8 @@ export interface CategoryDTO {
   id: number;
   name: string;
 }
+
+export interface CreateCategoryDTO {
+  name: string,
+  description: string,
+}
