@@ -22,7 +22,7 @@ router.route('/')
     try {
       const { title, content, categoryId } = req.body as CreatePostDTO;
       if (!title || !content || !categoryId) {
-        new CustomError('invalid params', 400);
+        throw new CustomError('invalid params', 400);
       }
       const now = getDateForDb();
       const postUuid = v5(title.concat(now), process.env.NAMESPACE_UUID as string);
@@ -43,11 +43,11 @@ router.route('/:post_uuid')
     try {
       const { post_uuid: postUuid } = req.params;
       if (!postUuid || !validate(postUuid)) {
-        new CustomError('invalid params', 400);
+        throw new CustomError('invalid params', 400);
       }
       fetchSinglePost(postUuid, (e, post) => {
         if (e) {
-          new CustomError('query error: no contents', 404);
+          next(new CustomError('query error: no contents', 404));
         }
         res.status(200).json(post);
       });
@@ -61,7 +61,7 @@ router.route('/:post_uuid')
     try {
       const { post_uuid: postUuid } = req.params;
       if (!postUuid || !validate(postUuid)) {
-        new CustomError('invalid params', 400);
+        throw new CustomError('invalid params', 400);
       }
 
       // [TODO] subdivide http stat code - not updated, updated, ...
