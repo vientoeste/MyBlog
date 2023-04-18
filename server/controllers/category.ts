@@ -37,7 +37,16 @@ router.route('/')
 router.route('/:id')
   .get((req, res, next) => {
     const { id } = req.params;
-    fetchPostsByCategory(id, (e, posts) => {
+    let { count } = req.query as { count: string };
+    if (count === undefined) {
+      count = '0';
+    }
+    if (Number.isNaN(parseInt(count, 10))) {
+      res.status(400).json({
+        message: 'invalid query string(not a number)',
+      });
+    }
+    fetchPostsByCategory(id, parseInt(count, 10), (e, posts) => {
       if (e) {
         console.error(e);
         next(e);

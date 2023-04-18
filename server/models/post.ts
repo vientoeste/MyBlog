@@ -123,7 +123,7 @@ export const fetchPreviewPosts = (callback: (error: Error | null, results: PostD
     });
 };
 
-const fetchPostsByCategorySQL = `
+const fetchPostsByCategorySQL = (count: number) => `
 SELECT
   BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
 FROM ${process.env.MYSQL_DB as string}.posts
@@ -131,10 +131,10 @@ WHERE 1
   AND is_published = 1
   AND category_id = ?
 ORDER BY updated_at DESC
-LIMIT 0, 10`;
-export const fetchPostsByCategory = (categoryId: string, callback: (error: Error | null, results: PostDTO[]) => void) => {
+LIMIT ${count === 0 ? '' : count.toString()}0, ${(count + 1).toString()}0`;
+export const fetchPostsByCategory = (categoryId: string, count: number, callback: (error: Error | null, results: PostDTO[]) => void) => {
   connection
-    .query(fetchPostsByCategorySQL, [categoryId], (e: Query.QueryError | null, queryRes: RowDataPacket[]) => {
+    .query(fetchPostsByCategorySQL(count), [categoryId], (e: Query.QueryError | null, queryRes: RowDataPacket[]) => {
       if (e) {
         console.error(e);
         callback(e, []);
@@ -146,7 +146,7 @@ export const fetchPostsByCategory = (categoryId: string, callback: (error: Error
           title: post.title,
           content: post.content,
           categoryId: post.category_id,
-        };
+        } as PostDTO;
       });
       callback(null, posts);
     });
