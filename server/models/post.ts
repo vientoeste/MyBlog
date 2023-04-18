@@ -57,12 +57,11 @@ const historyQueryBuilder = (
 
   return `
   INSERT INTO ${process.env.MYSQL_DB as string}.post_histories
-  (post_uuid, ${columns.toUpdate.join(', ')}${columns.toLeave.length !== 0 ? ', '.concat(columns.toLeave.join(', ')) : ''},
-  is_published, created_at)
-    SELECT uuid, '${columns.updateVal.join('\', \'')}'${columns.toLeave.length !== 0 ? ', '.concat(columns.toLeave.join(', ')) : ''},
-    is_published, NOW()
-      FROM ${process.env.MYSQL_DB as string}.posts
-      WHERE BIN_TO_UUID(uuid)='${uuid}'`;
+  (post_uuid, ${columns.toUpdate.join(', ')}${columns.toLeave.length !== 0 ? ', '.concat(columns.toLeave.join(', ')) : ''}, is_published, created_at)
+  SELECT
+    uuid, '${columns.updateVal.join('\', \'')}'${columns.toLeave.length !== 0 ? ', '.concat(columns.toLeave.join(', ')) : ''}, is_published, NOW()
+  FROM ${process.env.MYSQL_DB as string}.posts
+  WHERE uuid=UUID_TO_BIN('${uuid}')`;
 };
 const createUpdateClause = (
   { title, content, categoryId }: UpdatePostDTO,
