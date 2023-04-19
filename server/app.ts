@@ -53,11 +53,14 @@ import bodyParser from 'body-parser';
 import { CustomError } from './lib/util';
 import postRouter from './controllers/post';
 import categoryRouter from './controllers/category';
-import { connectToDb } from './models';
+import { MainPageCache, connectToDb } from './models';
 
 const app = http2Express(express);
 
 connectToDb();
+
+export const mainPageCache = new MainPageCache();
+
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 

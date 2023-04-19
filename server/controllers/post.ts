@@ -3,19 +3,14 @@ import { v5, validate } from 'uuid';
 import { CustomError } from '../lib/util';
 import { CreatePostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { getDateForDb } from '../lib/util';
-import { createNewPostTx, fetchPreviewPosts, fetchSinglePost, updatePostTx } from '../models/post';
+import { createNewPostTx, fetchSinglePost, updatePostTx } from '../models/post';
+import { mainPageCache } from '../app';
 
 const router = Router();
 
 router.route('/')
-  .get((req, res, next) => {
-    fetchPreviewPosts((e, posts) => {
-      if (e) {
-        console.error(e);
-        next(e);
-      }
-      res.status(200).json(posts);
-    });
+  .get((req, res) => {
+    res.status(200).json(mainPageCache.getPostPreview());
   })
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   .post(async (req: Request, res: Response, next: NextFunction) => {
@@ -27,6 +22,7 @@ router.route('/')
       const now = getDateForDb();
       const postUuid = v5(title.concat(now), process.env.NAMESPACE_UUID as string);
       await createNewPostTx(postUuid, title, content, categoryId, now).then(() => {
+        mainPageCache.updatePostPreview();
         res.status(201).json({
           message: 'successfully created a post',
           uuid: postUuid,
@@ -66,6 +62,7 @@ router.route('/:post_uuid')
 
       // [TODO] subdivide http stat code - not updated, updated, ...
       await updatePostTx(postUuid, req.body as UpdatePostDTO);
+      mainPageCache.updatePostPreview();
 
       res.status(201).json({
         message: 'ok',

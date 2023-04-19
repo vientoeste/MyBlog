@@ -1,5 +1,8 @@
 import { createConnection } from 'mysql2';
 import Connection from 'mysql2/typings/mysql/lib/Connection';
+import { fetchPreviewPosts } from './post';
+import { CategoryDTO, PostDTO } from '../interfaces/Dto';
+import { fetchCategories } from './category';
 
 export const connection = createConnection({
   host: process.env.MYSQL_HOST,
@@ -81,3 +84,56 @@ export const executeMultipleQueriesTx = (
       reject(err);
     });
 });
+
+export class MainPageCache {
+  private postPreviews: PostDTO[] = [];
+
+  private categories: CategoryDTO[] = [];
+
+  constructor() {
+    fetchPreviewPosts((e, r) => {
+      if (e) {
+        console.error(e);
+        process.exit(1);
+      }
+      this.postPreviews.push(...r);
+    });
+    fetchCategories((e, r) => {
+      if (e) {
+        console.error(e);
+        process.exit(1);
+      }
+      this.categories.push(...r);
+    });
+  }
+
+  updateCategory() {
+    fetchCategories((e, r) => {
+      if (e) {
+        console.error(e);
+        // [TODO] how to handle cache error?
+      }
+      this.categories.splice(0);
+      this.categories.push(...r);
+    });
+  }
+
+  updatePostPreview() {
+    fetchPreviewPosts((e, r) => {
+      if (e) {
+        console.error(e);
+        // [TODO] how to handle cache error?
+      }
+      this.postPreviews.splice(0);
+      this.postPreviews.push(...r);
+    });
+  }
+
+  getCategory() {
+    return this.categories;
+  }
+
+  getPostPreview() {
+    return this.postPreviews;
+  }
+}
