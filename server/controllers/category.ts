@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createNewCategoryTx, getCategories } from '../models/category';
+import { createNewCategoryTx, fetchCategories } from '../models/category';
 import { fetchPostsByCategory } from '../models/post';
 import { CreateCategoryDTO } from '../interfaces/Dto';
 import { CustomError } from '../lib/util';
@@ -8,7 +8,7 @@ const router = Router();
 
 router.route('/')
   .get((req, res, next) => {
-    getCategories((e, categories) => {
+    fetchCategories((e, categories) => {
       if (e) {
         console.error(e);
         next(e);

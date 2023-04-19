@@ -7,7 +7,7 @@ const getCategoriesQuery = `
 SELECT
   id, name
 FROM ${process.env.MYSQL_DB as string}.categories`;
-export const getCategories = (callback: (error: Error | null, results: CategoryDTO[]) => void) => {
+export const fetchCategories = (callback: (error: Error | null, results: CategoryDTO[]) => void) => {
   connection
     .query(getCategoriesQuery, (e: Query.QueryError | null, queryRes: CategoryEntity[]) => {
       if (e) {
