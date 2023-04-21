@@ -5,6 +5,7 @@ import { CreatePostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { getDateForDb } from '../lib/util';
 import { createNewPostTx, fetchSinglePost, updatePostTx } from '../models/post';
 import { mainPageCache } from '../app';
+import { fetchComments } from '../models/comment';
 
 const router = Router();
 
@@ -71,5 +72,18 @@ router.route('/:post_uuid')
       next(e);
     }
   });
+
+router.route('/:post_uuid/comments').get((req, res, next) => {
+  const { post_uuid: postUuid } = req.params;
+  if (!postUuid || !validate(postUuid)) {
+    next(new CustomError('invalid params', 400));
+  }
+  fetchComments(postUuid, (e, comments) => {
+    if (e) {
+      next(e);
+    }
+    res.status(200).json(comments);
+  });
+});
 
 export default router;
