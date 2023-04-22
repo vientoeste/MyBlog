@@ -80,7 +80,7 @@ router.route('/:post_uuid/comments').get((req, res, next) => {
   }
   fetchComments(postUuid, (e, comments) => {
     if (e) {
-      next(e);
+      next(new CustomError('query failed', 400));
     }
     res.status(200).json(comments);
   });

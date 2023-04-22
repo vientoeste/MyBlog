@@ -8,3 +8,9 @@ export interface CategoryEntity {
   id: number;
   name: string;
 }
+
+export interface CommentEntity {
+  user_id: string,
+  content: string,
+  created_at: string,
+}

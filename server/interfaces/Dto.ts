@@ -28,7 +28,7 @@ export interface CreateCategoryDTO {
 }
 
 export interface CommentDTO {
-  user: string,
+  userId: string,
   content: string,
-  created_at: string,
+  createdAt: string,
 }
