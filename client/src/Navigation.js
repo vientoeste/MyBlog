@@ -4,7 +4,7 @@ function Navigation() {
   return (
     <nav>
       <ul>
-        <li><a href="/"><img src="/laptop-code-solid.svg" alt=""/>Este the Dev</a></li>
+        <li><a href="/"><img src="/laptop-code-solid.svg" alt="" />Este the Dev</a></li>
         <li><a href="/#">🌸</a></li>
         <li><a href="/#">🌸</a></li>
         <li><a href="/#">🌸</a></li>
