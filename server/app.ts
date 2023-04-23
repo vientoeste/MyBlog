@@ -2,14 +2,15 @@ import 'dotenv/config';
 // intended to be used with block scope
 const validateEnvVars = () => {
   const RequiredEnvironmentVars = [
+    'PORT',
+    'NODE_ENV',
     'MYSQL_HOST',
     'MYSQL_ID',
     'MYSQL_PW',
     'MYSQL_DB',
-    'PORT',
-    'NODE_ENV',
     'MYSQL_PORT',
     'NAMESPACE_UUID',
+    'PRIVATE_API_KEY',
   ];
   const {
     PORT,
@@ -20,6 +21,7 @@ const validateEnvVars = () => {
     MYSQL_DB,
     MYSQL_PORT,
     NAMESPACE_UUID,
+    PRIVATE_API_KEY,
   } = process.env;
   const invalidParams = [
     PORT,
@@ -30,6 +32,7 @@ const validateEnvVars = () => {
     MYSQL_DB,
     MYSQL_PORT,
     NAMESPACE_UUID,
+    PRIVATE_API_KEY,
   ].map((param, index) => {
     if (typeof param === 'undefined' || param === null || param === '') {
       return RequiredEnvironmentVars[index];
@@ -54,6 +57,7 @@ import { CustomError } from './utils';
 import postRouter from './controllers/post';
 import categoryRouter from './controllers/category';
 import { MainPageCache, connectToDb } from './models';
+import { verifyApiKey } from './middlewares';
 
 const app = http2Express(express);
 
@@ -69,7 +73,8 @@ const serverOption = {
   cert: undefined,
 };
 
-app.use(express.static(path.join(__dirname, 'build')));
+app.use(verifyApiKey);
+
 app.use('/posts', postRouter);
 app.use('/categories', categoryRouter);
 
