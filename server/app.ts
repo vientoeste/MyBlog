@@ -50,7 +50,7 @@ import http2Express from 'http2-express-bridge';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 
-import { CustomError } from './lib/util';
+import { CustomError } from './utils';
 import postRouter from './controllers/post';
 import categoryRouter from './controllers/category';
 import { MainPageCache, connectToDb } from './models';

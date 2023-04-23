@@ -3,7 +3,7 @@ import { connection, executeMultipleQueriesTx } from '.';
 import { PostEntity } from '../interfaces/Entity';
 import { PostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { RowDataPacket } from 'mysql2';
-import { CustomError } from '../lib/util';
+import { CustomError } from '../utils';
 
 const newPostInsert = `
 INSERT INTO ${process.env.MYSQL_DB as string}.posts

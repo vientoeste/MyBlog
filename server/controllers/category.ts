@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { createNewCategoryTx } from '../models/category';
 import { fetchPostsByCategory } from '../models/post';
 import { CreateCategoryDTO } from '../interfaces/Dto';
-import { CustomError } from '../lib/util';
+import { CustomError } from '../utils';
 import { mainPageCache } from '../app';
 
 const router = Router();
