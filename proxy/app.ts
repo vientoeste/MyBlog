@@ -39,7 +39,6 @@ import http2Express from 'http2-express-bridge';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import { serve, setup } from 'swagger-ui-express';
-import { CustomError } from '../server/utils';
 
 import swaggerDocument from './swagger.json';
 
