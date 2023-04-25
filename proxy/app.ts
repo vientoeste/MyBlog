@@ -39,6 +39,7 @@ import http2Express from 'http2-express-bridge';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import { serve, setup } from 'swagger-ui-express';
+import yaml from 'yamljs';
 
 import swaggerDocument from './swagger.json';
 
@@ -53,7 +54,9 @@ app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'build')));
 
-app.use('/api-docs', serve, setup(swaggerDocument));
+// to aviod yamljs's no unsafe argument, had no choice but to added eslint disable next line
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+app.use('/api-docs', serve, setup(yaml.load(path.join(__dirname, '../swagger.yaml'))));
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 app.use('/api-proxy', async (req, res, next) => {
