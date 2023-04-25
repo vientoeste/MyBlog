@@ -10,7 +10,9 @@ export interface CategoryEntity {
 }
 
 export interface CommentEntity {
-  user_id: string,
-  content: string,
-  created_at: string,
+  uuid: string;
+  post_uuid: string;
+  user_id: string;
+  content: string;
+  created_at: string;
 }

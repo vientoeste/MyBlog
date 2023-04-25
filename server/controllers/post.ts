@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { v5, validate } from 'uuid';
 import { CustomError } from '../utils';
-import { CreatePostDTO, UpdatePostDTO } from '../interfaces/Dto';
+import { CreateCommentDTO, CreatePostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { getDateForDb } from '../utils';
 import { createNewPostTx, fetchSinglePost, updatePostTx } from '../models/post';
 import { mainPageCache } from '../app';
-import { fetchComments } from '../models/comment';
+import { createNewCommentTx, fetchComments } from '../models/comment';
 
 const router = Router();
 
@@ -73,17 +73,39 @@ router.route('/:post_uuid')
     }
   });
 
-router.route('/:post_uuid/comments').get((req, res, next) => {
-  const { post_uuid: postUuid } = req.params;
-  if (!postUuid || !validate(postUuid)) {
-    next(new CustomError('invalid params', 400));
-  }
-  fetchComments(postUuid, (e, comments) => {
-    if (e) {
-      next(new CustomError('query failed', 400));
+router.route('/:post_uuid/comments')
+  .get((req, res, next) => {
+    const { post_uuid: postUuid } = req.params;
+    if (!postUuid || !validate(postUuid)) {
+      next(new CustomError('invalid params', 400));
     }
-    res.status(200).json(comments);
+    fetchComments(postUuid, (e, comments) => {
+      if (e) {
+        next(new CustomError('query failed', 400));
+      }
+      res.status(200).json(comments);
+    });
+  })
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  .post(async (req, res, next) => {
+    try {
+      const { userId, content } = req.body as CreateCommentDTO;
+      const { post_uuid: postUuid } = req.params;
+      if (!userId || !content || !postUuid || !validate(postUuid)) {
+        throw new CustomError('invalid params', 400);
+      }
+      const now = getDateForDb();
+      const commentUuid = v5(content.concat(now), process.env.NAMESPACE_UUID as string);
+      await createNewCommentTx(commentUuid, postUuid, userId, content, now).then(() => {
+        res.status(201).json({
+          message: 'successfully created a comment',
+          uuid: commentUuid,
+        });
+      });
+    } catch (e) {
+      console.error(e);
+      next(e);
+    }
   });
-});
 
 export default router;

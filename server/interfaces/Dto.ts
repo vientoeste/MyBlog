@@ -23,12 +23,18 @@ export interface CategoryDTO {
 }
 
 export interface CreateCategoryDTO {
-  name: string,
-  description: string,
+  name: string;
+  description: string;
 }
 
 export interface CommentDTO {
-  userId: string,
-  content: string,
-  createdAt: string,
+  userId: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface CreateCommentDTO {
+  userId: string;
+  content: string;
+  postUuid: string;
 }
