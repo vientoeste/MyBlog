@@ -2,7 +2,7 @@ const { rmSync } = require("fs");
 const { resolve } = require("path");
 
 const serverDistFolder = resolve(__dirname, "..", "server", "dist");
-const proxyDistFolder = resolve(__dirname, "..", "server", "dist");
+const proxyDistFolder = resolve(__dirname, "..", "proxy", "dist");
 
 try {
   rmSync(proxyDistFolder, { recursive: true });
