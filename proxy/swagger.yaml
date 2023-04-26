@@ -50,6 +50,24 @@ paths:
       description: 카테고리 목록 조회
       tags:
         - category
+      responses:
+        "200":
+          description: 카테고리 목록 반환
+          content:
+            application/x-www-urlencoded:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+              examples:
+                data:
+                  value: |
+                    id=1&name=category1
+                    &
+                    id=2&name=category2
     post:
       description: 새 카테고리 생성
       tags:
@@ -72,6 +90,28 @@ paths:
       description: 전체 포스트 조회
       tags:
         - post
+      responses:
+        "200":
+          description: 포스트 미리보기 반환
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  content:
+                    type: string
+                  categoryId:
+                    type: integer
+              examples:
+                data:
+                  value: |
+                    uuid=e67f1c05-5eb5-4ed7-af79-0e4bf4f8d4ba&title=title1&content=example+content&categoryId=1
+                    &
+                    uuid=9256e231-63dc-4ae5-899d-d471a6ac85ca&title=title2&content=example+2&categoryId=2
     post:
       description: 새 포스트 작성
       tags:
