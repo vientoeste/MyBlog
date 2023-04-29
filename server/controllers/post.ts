@@ -5,7 +5,7 @@ import { CreateCommentDTO, CreatePostDTO, UpdatePostDTO } from '../interfaces/Dt
 import { getDateForDb } from '../utils';
 import { createNewPostTx, fetchSinglePost, updatePostTx } from '../models/post';
 import { mainPageCache } from '../app';
-import { createNewCommentTx, fetchComments } from '../models/comment';
+import { createNewCommentTx, deleteComment, fetchComments } from '../models/comment';
 
 const router = Router();
 
@@ -106,6 +106,18 @@ router.route('/:post_uuid/comments')
       console.error(e);
       next(e);
     }
+  });
+
+// [TODO] cli-side에서, 응답한 이전의 res body를 바탕으로 commentUuid에 대한 유효성(is_deleted==0?) 검증 필요
+router.route('/:post_uuid/comments/:comment_uuid')
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  .delete(async (req, res, next) => {
+    const { comment_uuid: commentUuid } = req.params;
+    if (!validate(commentUuid)) {
+      next(new CustomError('invalid params', 400));
+    }
+    await deleteComment(commentUuid);
+    res.status(204).send();
   });
 
 export default router;

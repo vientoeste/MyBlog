@@ -28,7 +28,9 @@ export const createNewCommentTx = async (
 const fetchCommentsSQL = `
 SELECT user_id, content, created_at
 FROM ${process.env.MYSQL_DB as string}.comments
-WHERE post_uuid=UUID_TO_BIN(?)`;
+WHERE 1
+  AND post_uuid = UUID_TO_BIN(?)
+  AND is_deleted = 0`;
 export const fetchComments = (postUuid: string, callback: (error: Error | null, results: CommentDTO[] | CommentDTO | null) => void) => {
   connection.query(fetchCommentsSQL, [postUuid], (e, queryRes: RowDataPacket[]) => {
     if (e) {
@@ -55,4 +57,25 @@ export const fetchComments = (postUuid: string, callback: (error: Error | null, 
     }
     callback(null, comments);
   });
+};
+
+const deletedCommentHistoryInsertSQL = `
+INSERT INTO ${process.env.MYSQL_DB as string}.comment_histories
+(comment_uuid, post_uuid, user_id, content, created_at, deleted_at)
+SELECT
+  uuid, post_uuid, user_id, content, created_at, NOW()
+FROM ${process.env.MYSQL_DB as string}.comments
+WHERE uuid=UUID_TO_BIN(?)
+`;
+const deleteCommentSQL = `
+UPDATE ${process.env.MYSQL_DB as string}.comments
+SET is_deleted = 1
+WHERE uuid=UUID_TO_BIN(?) and is_deleted = 0
+`;
+export const deleteComment = async (commentUuid: string) => {
+  await executeMultipleQueriesTx(
+    connection,
+    [deletedCommentHistoryInsertSQL, deleteCommentSQL],
+    [[commentUuid], [commentUuid]],
+  );
 };
