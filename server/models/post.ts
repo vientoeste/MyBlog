@@ -104,6 +104,7 @@ SELECT
 FROM ${process.env.MYSQL_DB as string}.posts
 WHERE 1
   AND is_published = 1
+  AND is_deleted = 0
 ORDER BY updated_at DESC
 LIMIT 0, 5`;
 export const fetchPreviewPosts = (callback: (error: Error | null, results: PostDTO[]) => void) => {
@@ -130,6 +131,7 @@ FROM ${process.env.MYSQL_DB as string}.posts
 WHERE 1
   AND is_published = 1
   AND category_id = ?
+  AND is_deleted = 0
 ORDER BY updated_at DESC
 LIMIT ${count === 0 ? '' : count.toString()}0, ${(count + 1).toString()}0`;
 export const fetchPostsByCategory = (categoryId: string, count: number, callback: (error: Error | null, results: PostDTO[]) => void) => {
@@ -181,4 +183,28 @@ export const fetchSinglePost = (uuid: string, callback: (error: Error | null, re
         categoryId: post.category_id,
       } as PostDTO);
     });
+};
+
+const deletedPostHistoryInsertSQL = `
+INSERT INTO ${process.env.MYSQL_DB as string}.post_histories
+(uuid, title, content, category_id, create_at, is_published, deleted_at)
+  SELECT uuid, title, content, category_id, created_at, is_published, NOW()
+  FROM ${process.env.MYSQL_DB as string}.posts
+  WHERE 1
+    AND uuid = UUID_TO_BIN(?)
+    AND is_deleted = 0
+`;
+const deletePostSQL = `
+UPDATE ${process.env.MYSQL_DB as string}.posts
+SET is_deleted = 1
+WHERE 1
+  AND uuid = UUID_TO_BIN(?)
+  AND is_deleted = 0
+`;
+export const deletePostTx = async (postUuid: string) => {
+  await executeMultipleQueriesTx(
+    connection,
+    [deletedPostHistoryInsertSQL, deletePostSQL],
+    [[postUuid], [postUuid]],
+  );
 };

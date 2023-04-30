@@ -3,7 +3,7 @@ import { v5, validate } from 'uuid';
 import { CustomError } from '../utils';
 import { CreateCommentDTO, CreatePostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { getDateForDb } from '../utils';
-import { createNewPostTx, fetchSinglePost, updatePostTx } from '../models/post';
+import { createNewPostTx, deletePostTx, fetchSinglePost, updatePostTx } from '../models/post';
 import { mainPageCache } from '../app';
 import { createNewCommentTx, deleteComment, fetchComments } from '../models/comment';
 
@@ -71,6 +71,16 @@ router.route('/:post_uuid')
     } catch (e) {
       next(e);
     }
+  })
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  .delete(async (req, res, next) => {
+    const { post_uuid: postUuid } = req.params;
+    if (!postUuid || !validate(postUuid)) {
+      next(new CustomError('invalid params', 400));
+    }
+
+    await deletePostTx(postUuid);
+    res.status(204).send();
   });
 
 router.route('/:post_uuid/comments')
