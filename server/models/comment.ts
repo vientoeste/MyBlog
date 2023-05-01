@@ -62,10 +62,10 @@ export const fetchComments = (postUuid: string, callback: (error: Error | null, 
 const deletedCommentHistoryInsertSQL = `
 INSERT INTO ${process.env.MYSQL_DB as string}.comment_histories
 (comment_uuid, post_uuid, user_id, content, created_at, deleted_at)
-SELECT
-  uuid, post_uuid, user_id, content, created_at, NOW()
-FROM ${process.env.MYSQL_DB as string}.comments
-WHERE uuid=UUID_TO_BIN(?)
+  SELECT
+    uuid, post_uuid, user_id, content, created_at, NOW()
+  FROM ${process.env.MYSQL_DB as string}.comments
+  WHERE uuid=UUID_TO_BIN(?)
 `;
 const deleteCommentSQL = `
 UPDATE ${process.env.MYSQL_DB as string}.comments
