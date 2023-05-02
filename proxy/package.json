@@ -4,10 +4,10 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "prerender": "cd ../client && npm run build && cd ..",
-    "render": "node ../.scripts/copy-client",
+    "prerender": "cd ../client && npm run build",
+    "render": "tsc && node ../.scripts/copy-client",
     "prestart": "npm run render",
-    "start": "tsc && node dist/app.js"
+    "start": "node dist/app.js"
   },
   "author": "",
   "license": "ISC",

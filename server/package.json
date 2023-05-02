@@ -4,11 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "prebuild": "node ../.scripts/clean-dist.js",
-    "build": "tsc && node ../.scripts/copy-public.js",
     "watch": "tsc -w",
-    "prestart": "npm run build",
-    "start": "tsc && node dist/app.js"
+    "prestart": "node ../.scripts/clean-dist.js && tsc",
+    "start": "node dist/app.js"
   },
   "repository": {
     "type": "git",
