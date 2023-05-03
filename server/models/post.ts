@@ -1,9 +1,7 @@
-import Query from 'mysql2/typings/mysql/lib/protocol/sequences/Query';
-import { connection, executeMultipleQueriesTx } from '.';
 import { PostEntity } from '../interfaces/Entity';
 import { PostDTO, UpdatePostDTO } from '../interfaces/Dto';
-import { RowDataPacket } from 'mysql2';
 import { CustomError } from '../utils';
+import { executeSingleSelectQuery, executeMultipleQueriesTx } from '.';
 
 const newPostInsert = `
 INSERT INTO ${process.env.MYSQL_DB as string}.posts
@@ -15,7 +13,6 @@ INSERT INTO ${process.env.MYSQL_DB as string}.post_histories
 VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, 1)`;
 export const createNewPostTx = async (postUuid: string, title: string, content: string, categoryId: string, now: string) => {
   await executeMultipleQueriesTx(
-    connection,
     [newPostInsert, newPostHistoryInsert],
     [[postUuid, title, content, categoryId, now], [postUuid, title, content, categoryId, now]],
   );
@@ -86,7 +83,6 @@ export const updatePostTx = async (uuid: string, postColumnsToUpdate: UpdatePost
   const valuesToUpdate = Object.values(postColumnsToUpdate) as string[];
   const updatePostHistoryQuery = historyQueryBuilder(uuid, postColumnsToUpdate);
   await executeMultipleQueriesTx(
-    connection,
     [
       makeUpdatePostQuery(postColumnsToUpdate),
       updatePostHistoryQuery,
@@ -107,21 +103,18 @@ WHERE 1
   AND is_deleted = 0
 ORDER BY updated_at DESC
 LIMIT 0, 5`;
-export const fetchPreviewPosts = (callback: (error: Error | null, results: PostDTO[]) => void) => {
-  connection
-    .query(fetchPreviewPostsSQL, (e: Query.QueryError | null, queryRes: PostEntity[]) => {
-      if (e) {
-        console.error(e);
-        callback(e, []);
-      }
-      const posts = queryRes.map((post) => ({
-        uuid: post.uuid,
-        title: post.title,
-        content: post.content,
-        categoryId: post.category_id,
-      }));
-      callback(null, posts);
-    });
+export const fetchPreviewPosts = async () => {
+  const postEntities = await executeSingleSelectQuery<PostEntity[]>(fetchPreviewPostsSQL);
+  if (!postEntities) {
+    throw new Error('query error');
+  }
+  const posts = postEntities.map((post) => ({
+    uuid: post.uuid,
+    title: post.title,
+    content: post.content,
+    categoryId: post.category_id,
+  }));
+  return posts;
 };
 
 const fetchPostsByCategorySQL = (count: number) => `
@@ -134,24 +127,20 @@ WHERE 1
   AND is_deleted = 0
 ORDER BY updated_at DESC
 LIMIT ${count === 0 ? '' : count.toString()}0, ${(count + 1).toString()}0`;
-export const fetchPostsByCategory = (categoryId: string, count: number, callback: (error: Error | null, results: PostDTO[]) => void) => {
-  connection
-    .query(fetchPostsByCategorySQL(count), [categoryId], (e: Query.QueryError | null, queryRes: RowDataPacket[]) => {
-      if (e) {
-        console.error(e);
-        callback(e, []);
-      }
-      const posts = queryRes.map((rowData) => {
-        const post = rowData as PostEntity;
-        return {
-          uuid: post.uuid,
-          title: post.title,
-          content: post.content,
-          categoryId: post.category_id,
-        } as PostDTO;
-      });
-      callback(null, posts);
-    });
+export const fetchPostsByCategory = async (
+  categoryId: string, count: number,
+): Promise<PostDTO[]> => {
+  const postEntities = await executeSingleSelectQuery<PostEntity[]>(fetchPostsByCategorySQL(count), [categoryId]);
+  if (!postEntities) {
+    throw new Error('query error');
+  }
+  const posts = postEntities.map((post) => ({
+    uuid: post.uuid,
+    title: post.title,
+    content: post.content,
+    categoryId: post.category_id,
+  }));
+  return posts;
 };
 
 const fetchSinglePostSQL = `
@@ -161,28 +150,24 @@ FROM ${process.env.MYSQL_DB as string}.posts
 WHERE 1
   AND is_published = 1
   AND uuid = UUID_TO_BIN(?)`;
-export const fetchSinglePost = (uuid: string, callback: (error: Error | null, result: PostDTO | null) => void) => {
-  connection
-    .query(fetchSinglePostSQL, [uuid], (e: Query.QueryError | null, queryRes: RowDataPacket[]) => {
-      if (e) {
-        console.error(e);
-        callback(e, null);
-      }
-      if (queryRes.length === 0) {
-        callback(new CustomError('no contents', 404), null);
-      }
-      if (queryRes.length === 2) {
-        callback(new CustomError('internal server error', 500), null);
-      }
-      const post = queryRes[0] as PostEntity;
-
-      callback(null, {
-        uuid: post.uuid,
-        title: post.title,
-        content: post.content,
-        categoryId: post.category_id,
-      } as PostDTO);
-    });
+export const fetchSinglePost = async (uuid: string): Promise<PostDTO> => {
+  const postEntity = await executeSingleSelectQuery<PostEntity[]>(fetchSinglePostSQL, [uuid]);
+  if (!postEntity) {
+    throw new Error('query error');
+  }
+  if (postEntity.length === 0) {
+    throw new CustomError('no contents', 404);
+  }
+  if (postEntity.length === 2) {
+    throw new CustomError('internal server error', 500);
+  }
+  const post = {
+    uuid: postEntity[0].uuid,
+    title: postEntity[0].title,
+    content: postEntity[0].content,
+    categoryId: postEntity[0].category_id,
+  };
+  return post;
 };
 
 const deletedPostHistoryInsertSQL = `
@@ -203,7 +188,6 @@ WHERE 1
 `;
 export const deletePostTx = async (postUuid: string) => {
   await executeMultipleQueriesTx(
-    connection,
     [deletedPostHistoryInsertSQL, deletePostSQL],
     [[postUuid], [postUuid]],
   );

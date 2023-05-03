@@ -1,6 +1,5 @@
-import { connection, executeMultipleQueriesTx } from '.';
+import { executeSingleSelectQuery, executeMultipleQueriesTx } from '.';
 import { CommentDTO } from '../interfaces/Dto';
-import { RowDataPacket } from 'mysql2';
 import { CommentEntity } from '../interfaces/Entity';
 
 const newCommentInsert = `
@@ -19,7 +18,6 @@ export const createNewCommentTx = async (
   now: string,
 ) => {
   await executeMultipleQueriesTx(
-    connection,
     [newCommentInsert, newCommentHistoryInsert],
     [[commentUuid, postUuid, userId, content, now], [commentUuid, postUuid, userId, content, now]],
   );
@@ -31,32 +29,19 @@ FROM ${process.env.MYSQL_DB as string}.comments
 WHERE 1
   AND post_uuid = UUID_TO_BIN(?)
   AND is_deleted = 0`;
-export const fetchComments = (postUuid: string, callback: (error: Error | null, results: CommentDTO[] | CommentDTO | null) => void) => {
-  connection.query(fetchCommentsSQL, [postUuid], (e, queryRes: RowDataPacket[]) => {
-    if (e) {
-      console.error(e);
-      callback(e, null);
-    }
-    const comments: CommentDTO[] = [];
-    if (Array.isArray(queryRes)) {
-      comments.push(...queryRes.map((queryVal) => {
-        const comment = queryVal as CommentEntity;
-        return {
-          userId: comment.user_id,
-          content: comment.content,
-          createdAt: comment.created_at,
-        } as CommentDTO;
-      }));
-    } else {
-      const comment = queryRes as CommentEntity;
-      comments.push({
-        userId: comment.user_id,
-        content: comment.content,
-        createdAt: comment.created_at,
-      } as CommentDTO);
-    }
-    callback(null, comments);
-  });
+export const fetchComments = async (
+  postUuid: string,
+): Promise<CommentDTO[]> => {
+  const commentEntities = await executeSingleSelectQuery<CommentEntity[]>(fetchCommentsSQL, [postUuid]);
+  if (!commentEntities) {
+    throw new Error('query error');
+  }
+  const comments = commentEntities.map((comment) => ({
+    userId: comment.user_id,
+    content: comment.content,
+    createdAt: comment.created_at,
+  }));
+  return comments;
 };
 
 const deletedCommentHistoryInsertSQL = `
@@ -74,7 +59,6 @@ WHERE uuid=UUID_TO_BIN(?) and is_deleted = 0
 `;
 export const deleteComment = async (commentUuid: string) => {
   await executeMultipleQueriesTx(
-    connection,
     [deletedCommentHistoryInsertSQL, deleteCommentSQL],
     [[commentUuid], [commentUuid]],
   );

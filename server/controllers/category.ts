@@ -19,7 +19,7 @@ router.route('/')
         throw new CustomError('invalid params', 400);
       }
       await createNewCategoryTx(name, description).then(() => {
-        mainPageCache.updateCategory();
+        mainPageCache.updateCategoryCache();
         res.status(201).json({
           message: 'successfully created a category',
         });
@@ -32,23 +32,23 @@ router.route('/')
 
 router.route('/:id')
   .get((req, res, next) => {
-    const { id } = req.params;
-    let { count } = req.query as { count: string };
-    if (count === undefined) {
-      count = '0';
-    }
-    if (Number.isNaN(parseInt(count, 10))) {
-      res.status(400).json({
-        message: 'invalid query string(not a number)',
-      });
-    }
-    fetchPostsByCategory(id, parseInt(count, 10), (e, posts) => {
-      if (e) {
-        console.error(e);
-        next(e);
+    try {
+      const { id } = req.params;
+      let { count } = req.query as { count: string };
+      if (count === undefined) {
+        count = '0';
       }
+      if (Number.isNaN(parseInt(count, 10))) {
+        res.status(400).json({
+          message: 'invalid query string(not a number)',
+        });
+      }
+      const posts = fetchPostsByCategory(id, parseInt(count, 10));
       res.status(200).json(posts);
-    });
+    } catch (e) {
+      console.error(e);
+      next(e);
+    }
   });
 
 export default router;

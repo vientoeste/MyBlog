@@ -23,7 +23,7 @@ router.route('/')
       const now = getDateForDb();
       const postUuid = v5(title.concat(now), process.env.NAMESPACE_UUID as string);
       await createNewPostTx(postUuid, title, content, categoryId, now).then(() => {
-        mainPageCache.updatePostPreview();
+        mainPageCache.updatePostPreviewCache();
         res.status(201).json({
           message: 'successfully created a post',
           uuid: postUuid,
@@ -36,18 +36,15 @@ router.route('/')
   });
 
 router.route('/:post_uuid')
-  .get((req, res, next) => {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  .get(async (req, res, next) => {
     try {
       const { post_uuid: postUuid } = req.params;
       if (!postUuid || !validate(postUuid)) {
         throw new CustomError('invalid params', 400);
       }
-      fetchSinglePost(postUuid, (e, post) => {
-        if (e) {
-          next(new CustomError('query error: no contents', 404));
-        }
-        res.status(200).json(post);
-      });
+      const post = await fetchSinglePost(postUuid);
+      res.status(200).json(post);
     } catch (e) {
       console.error(e);
       next(e);
@@ -62,8 +59,9 @@ router.route('/:post_uuid')
       }
 
       // [TODO] subdivide http stat code - not updated, updated, ...
-      await updatePostTx(postUuid, req.body as UpdatePostDTO);
-      mainPageCache.updatePostPreview();
+      await updatePostTx(postUuid, req.body as UpdatePostDTO).then(() => {
+        mainPageCache.updatePostPreviewCache();
+      });
 
       res.status(201).json({
         message: 'ok',
@@ -84,17 +82,19 @@ router.route('/:post_uuid')
   });
 
 router.route('/:post_uuid/comments')
-  .get((req, res, next) => {
-    const { post_uuid: postUuid } = req.params;
-    if (!postUuid || !validate(postUuid)) {
-      next(new CustomError('invalid params', 400));
-    }
-    fetchComments(postUuid, (e, comments) => {
-      if (e) {
-        next(new CustomError('query failed', 400));
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  .get(async (req, res, next) => {
+    try {
+      const { post_uuid: postUuid } = req.params;
+      if (!postUuid || !validate(postUuid)) {
+        next(new CustomError('invalid params', 400));
       }
+      const comments = await fetchComments(postUuid);
       res.status(200).json(comments);
-    });
+    } catch (e) {
+      console.error(e);
+      next(e);
+    }
   })
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   .post(async (req, res, next) => {

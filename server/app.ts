@@ -55,12 +55,10 @@ import bodyParser from 'body-parser';
 import { CustomError } from './utils';
 import postRouter from './controllers/post';
 import categoryRouter from './controllers/category';
-import { MainPageCache, connectToDb } from './models';
+import { MainPageCache } from './models';
 import { verifyApiKey } from './middlewares';
 
 const app = http2Express(express);
-
-connectToDb();
 
 export const mainPageCache = new MainPageCache();
 
