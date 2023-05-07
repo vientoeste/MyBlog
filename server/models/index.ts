@@ -74,6 +74,20 @@ export const executeMultipleQueriesTx = async (
   }
 };
 
+export const patchEntity = async <T, K extends keyof T>(
+  patch: Pick<T, K>,
+  tableName: string,
+  pkName: keyof T,
+): Promise<void> => {
+  const keys = Object.keys(patch);
+  const values = Object.values(patch);
+  const setClause = keys.map((key) => `${key} = ?`).join(', ');
+  const query = `UPDATE ${tableName} SET ${setClause} WHERE ${String(pkName)} = ?`;
+  // [TODO] inject params
+  const params = [...values/*, ?? */];
+  await connection.raw(query, params);
+};
+
 export class MainPageCache {
   private postPreviews: PostDTO[] = [];
 
