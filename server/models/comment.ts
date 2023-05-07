@@ -1,4 +1,4 @@
-import { executeSingleSelectQuery, executeMultipleQueriesTx } from '.';
+import { executeSingleSelectQuery, executeMultipleQueriesTx, buildUpdateModelQuery } from '.';
 import { CommentDTO } from '../interfaces/Dto';
 import { CommentEntity } from '../interfaces/Entity';
 
@@ -62,4 +62,12 @@ export const deleteComment = async (commentUuid: string) => {
     [deletedCommentHistoryInsertSQL, deleteCommentSQL],
     [[commentUuid], [commentUuid]],
   );
+};
+
+export const updateComment = async (
+  paramsToUpdate: Partial<CommentEntity>,
+  uuid: string,
+) => {
+  const { query, params } = buildUpdateModelQuery<CommentEntity, keyof typeof paramsToUpdate>(paramsToUpdate as Pick<CommentEntity, keyof typeof paramsToUpdate>, 'comments', 'uuid', uuid);
+  await executeMultipleQueriesTx([query], [params]);
 };

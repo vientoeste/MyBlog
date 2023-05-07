@@ -121,6 +121,21 @@ router.route('/:post_uuid/comments')
 // [TODO] cli-side에서, 응답한 이전의 res body를 바탕으로 commentUuid에 대한 유효성(is_deleted==0?) 검증 필요
 router.route('/:post_uuid/comments/:comment_uuid')
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  .patch(async (req, res, next) => {
+    try {
+      const { post_uuid: postUuid, comment_uuid: commentUuid } = req.params;
+      if (!validate(commentUuid) || !validate(postUuid)) {
+        next(new CustomError('invalid params', 400));
+      }
+      const paramsToUpdate = req.query as Partial<CommentEntity>;
+      await updateComment(paramsToUpdate, commentUuid);
+      res.status(200).send('ok');
+    } catch (err) {
+      console.error(err);
+      next(err);
+    }
+  })
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   .delete(async (req, res, next) => {
     const { comment_uuid: commentUuid } = req.params;
     if (!validate(commentUuid)) {

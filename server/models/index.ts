@@ -74,18 +74,29 @@ export const executeMultipleQueriesTx = async (
   }
 };
 
-export const patchEntity = async <T, K extends keyof T>(
+const historyTable = (table: string) =>
+  table.slice(0, -1).concat('_histories');
+
+export const buildUpdateModelQuery = <T, K extends keyof T>(
   patch: Pick<T, K>,
   tableName: string,
   pkName: keyof T,
-): Promise<void> => {
+  pk: string,
+): { query: string, params: string[] } => {
   const keys = Object.keys(patch);
   const values = Object.values(patch);
   const setClause = keys.map((key) => `${key} = ?`).join(', ');
-  const query = `UPDATE ${tableName} SET ${setClause} WHERE ${String(pkName)} = ?`;
-  // [TODO] inject params
-  const params = [...values/*, ?? */];
-  await connection.raw(query, params);
+  const updateRecordQuery = `
+  UPDATE ${process.env.MYSQL_DB as string}.${tableName}
+  SET ${setClause}
+  WHERE 1
+    AND ${String(pkName) === 'uuid' ? 'BIN_TO_UUID(uuid)' : 'id'} = ?`;
+  // [TODO] needs to add history query
+  const params = [...values, pk] as string[];
+  return {
+    query: updateRecordQuery,
+    params,
+  };
 };
 
 export class MainPageCache {
