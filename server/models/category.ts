@@ -5,7 +5,7 @@ import { CategoryEntity } from '../interfaces/Entity';
 const getCategoriesQuery = `
 SELECT
   id, name
-FROM ${process.env.MYSQL_DB as string}.categories`;
+FROM ${process.env.MYSQL_DB as string}.category`;
 export const fetchCategories = async (): Promise<CategoryDTO[]> => {
   const categoryEntities = await executeSingleSelectQuery<CategoryEntity[]>(getCategoriesQuery);
   if (!categoryEntities) {
@@ -19,14 +19,14 @@ export const fetchCategories = async (): Promise<CategoryDTO[]> => {
 };
 
 const newCategoryInsert = `
-INSERT INTO ${process.env.MYSQL_DB as string}.categories
+INSERT INTO ${process.env.MYSQL_DB as string}.category
 (name, description)
 VALUES (?, ?)`;
 const newCategoryHistoryInsert = `
-INSERT INTO ${process.env.MYSQL_DB as string}.category_histories
+INSERT INTO ${process.env.MYSQL_DB as string}.category_history
 (category_id, name, description)
   SELECT id, name, description
-  FROM categories
+  FROM category
   ORDER BY id DESC LIMIT 1`;
 export const createNewCategoryTx = async (name: string, description: string) => {
   await executeMultipleQueriesTx(

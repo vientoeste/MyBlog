@@ -4,11 +4,11 @@ import { CustomError } from '../utils';
 import { executeSingleSelectQuery, executeMultipleQueriesTx } from '.';
 
 const newPostInsert = `
-INSERT INTO ${process.env.MYSQL_DB as string}.posts
+INSERT INTO ${process.env.MYSQL_DB as string}.post
 (uuid, title, content, category_id, created_at, is_published)
 VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, 1)`;
 const newPostHistoryInsert = `
-INSERT INTO ${process.env.MYSQL_DB as string}.post_histories
+INSERT INTO ${process.env.MYSQL_DB as string}.post_history
 (post_uuid, title, content, category_id, created_at, is_published)
 VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, 1)`;
 export const createNewPostTx = async (postUuid: string, title: string, content: string, categoryId: string, now: string) => {
@@ -53,11 +53,11 @@ const historyQueryBuilder = (
   }
 
   return `
-  INSERT INTO ${process.env.MYSQL_DB as string}.post_histories
+  INSERT INTO ${process.env.MYSQL_DB as string}.post_history
   (post_uuid, ${columns.toUpdate.join(', ')}${columns.toLeave.length !== 0 ? ', '.concat(columns.toLeave.join(', ')) : ''}, is_published, created_at)
     SELECT
       uuid, '${columns.updateVal.join('\', \'')}'${columns.toLeave.length !== 0 ? ', '.concat(columns.toLeave.join(', ')) : ''}, is_published, NOW()
-    FROM ${process.env.MYSQL_DB as string}.posts
+    FROM ${process.env.MYSQL_DB as string}.post
     WHERE uuid=UUID_TO_BIN('${uuid}')`;
 };
 const createUpdateClause = (
@@ -76,7 +76,7 @@ const createUpdateClause = (
   return columnsToUpdate.join(' = ?, ').concat(' = ?');
 };
 const makeUpdatePostQuery = (postColumnsToUpdate: UpdatePostDTO) => `
-UPDATE ${process.env.MYSQL_DB as string}.posts
+UPDATE ${process.env.MYSQL_DB as string}.post
 SET ${createUpdateClause(postColumnsToUpdate)}
 WHERE uuid=UUID_TO_BIN(?)`;
 export const updatePostTx = async (uuid: string, postColumnsToUpdate: UpdatePostDTO) => {
@@ -97,7 +97,7 @@ export const updatePostTx = async (uuid: string, postColumnsToUpdate: UpdatePost
 const fetchPreviewPostsSQL = `
 SELECT
   BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
-FROM ${process.env.MYSQL_DB as string}.posts
+FROM ${process.env.MYSQL_DB as string}.post
 WHERE 1
   AND is_published = 1
   AND is_deleted = 0
@@ -120,7 +120,7 @@ export const fetchPreviewPosts = async () => {
 const fetchPostsByCategorySQL = (count: number) => `
 SELECT
   BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
-FROM ${process.env.MYSQL_DB as string}.posts
+FROM ${process.env.MYSQL_DB as string}.post
 WHERE 1
   AND is_published = 1
   AND category_id = ?
@@ -146,7 +146,7 @@ export const fetchPostsByCategory = async (
 const fetchSinglePostSQL = `
 SELECT
   BIN_TO_UUID(uuid) as uuid, title, content, category_id, updated_at
-FROM ${process.env.MYSQL_DB as string}.posts
+FROM ${process.env.MYSQL_DB as string}.post
 WHERE 1
   AND is_published = 1
   AND uuid = UUID_TO_BIN(?)`;
@@ -171,16 +171,16 @@ export const fetchSinglePost = async (uuid: string): Promise<PostDTO> => {
 };
 
 const deletedPostHistoryInsertSQL = `
-INSERT INTO ${process.env.MYSQL_DB as string}.post_histories
+INSERT INTO ${process.env.MYSQL_DB as string}.post_history
 (uuid, title, content, category_id, create_at, is_published, deleted_at)
   SELECT uuid, title, content, category_id, created_at, is_published, NOW()
-  FROM ${process.env.MYSQL_DB as string}.posts
+  FROM ${process.env.MYSQL_DB as string}.post
   WHERE 1
     AND uuid = UUID_TO_BIN(?)
     AND is_deleted = 0
 `;
 const deletePostSQL = `
-UPDATE ${process.env.MYSQL_DB as string}.posts
+UPDATE ${process.env.MYSQL_DB as string}.post
 SET is_deleted = 1
 WHERE 1
   AND uuid = UUID_TO_BIN(?)

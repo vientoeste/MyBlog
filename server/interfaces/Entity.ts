@@ -6,7 +6,7 @@ export interface PKTypes {
 export interface PostEntity extends Pick<PKTypes, 'uuid'> {
   title: string;
   content: string;
-  category_id: number;
+  category_id: string;
 }
 export interface CategoryEntity extends Pick<PKTypes, 'id'> {
   name: string;

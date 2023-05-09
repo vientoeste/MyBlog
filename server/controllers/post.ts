@@ -5,7 +5,8 @@ import { CreateCommentDTO, CreatePostDTO, UpdatePostDTO } from '../interfaces/Dt
 import { getDateForDb } from '../utils';
 import { createNewPostTx, deletePostTx, fetchSinglePost, updatePostTx } from '../models/post';
 import { mainPageCache } from '../app';
-import { createNewCommentTx, deleteComment, fetchComments } from '../models/comment';
+import { createNewCommentTx, deleteComment, fetchComments, updateComment } from '../models/comment';
+import { CommentEntity } from '../interfaces/Entity';
 
 const router = Router();
 

@@ -2,7 +2,7 @@ export interface PostDTO {
   uuid: string;
   title: string;
   content: string;
-  categoryId: number;
+  categoryId: string;
 }
 
 export interface CreatePostDTO {

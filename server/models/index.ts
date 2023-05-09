@@ -2,6 +2,7 @@ import knex, { Knex } from 'knex';
 import { CategoryDTO, PostDTO } from '../interfaces/Dto';
 import { fetchPreviewPosts } from './post';
 import { fetchCategories } from './category';
+import { validate } from 'uuid';
 
 export const connection = knex({
   client: 'mysql2',
@@ -75,14 +76,17 @@ export const executeMultipleQueriesTx = async (
 };
 
 const historyTable = (table: string) =>
-  table.slice(0, -1).concat('_histories');
+  table.concat('_history');
+
+const primaryKeyName = (tableName: string, primaryKey: string) =>
+  validate(primaryKey) ? tableName.concat('_uuid') : tableName.concat('_id');
+// const ;  
 
 export const buildUpdateModelQuery = <T, K extends keyof T>(
   patch: Pick<T, K>,
   tableName: string,
-  pkName: keyof T,
-  pk: string,
-): { query: string, params: string[] } => {
+  primaryKey: string,
+): { query: string[], params: string[][] } => {
   const keys = Object.keys(patch);
   const values = Object.values(patch);
   const setClause = keys.map((key) => `${key} = ?`).join(', ');
@@ -90,12 +94,18 @@ export const buildUpdateModelQuery = <T, K extends keyof T>(
   UPDATE ${process.env.MYSQL_DB as string}.${tableName}
   SET ${setClause}
   WHERE 1
-    AND ${String(pkName) === 'uuid' ? 'BIN_TO_UUID(uuid)' : 'id'} = ?`;
-  // [TODO] needs to add history query
-  const params = [...values, pk] as string[];
+    AND ${validate(primaryKey) ? 'BIN_TO_UUID(uuid)' : 'id'} = ?`;
+
+  // [TODO] complete
+  const insertHistoryQuery = `
+  INSERT INTO ${process.env.MYSQL_DB as string}.${historyTable(tableName)}
+  (${primaryKeyName(tableName, primaryKey)}, ...
+  SELECT
+    ${validate(primaryKey) ? 'UUID_TO_BIN(?)' : '?'}, ...
+  `;
   return {
-    query: updateRecordQuery,
-    params,
+    query: [updateRecordQuery],
+    params: [[...values, primaryKey] as string[]],
   };
 };
 
