@@ -70,7 +70,7 @@ export const updateComment = async (
 ) => {
   const { query, params } = buildUpdateModelQuery<CommentEntity, keyof typeof paramsToUpdate>(
     paramsToUpdate as Pick<CommentEntity, keyof typeof paramsToUpdate>,
-    'comments', uuid,
+    'comment', uuid,
   );
   await executeMultipleQueriesTx(query, params);
 };
