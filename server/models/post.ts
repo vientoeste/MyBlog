@@ -1,7 +1,7 @@
 import { PostEntity } from '../interfaces/Entity';
 import { PostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { CustomError } from '../utils';
-import { executeSingleSelectQuery, executeMultipleQueriesTx } from '.';
+import { executeSingleSelectQuery, executeMultipleQueriesTx, buildUpdateModelQuery } from '.';
 
 const newPostInsert = `
 INSERT INTO ${process.env.MYSQL_DB as string}.post
@@ -18,79 +18,22 @@ export const createNewPostTx = async (postUuid: string, title: string, content: 
   );
 };
 
-// [TODO] optimizable... maybe
-const historyQueryBuilder = (
-  uuid: string,
-  { title, content, categoryId }: UpdatePostDTO,
+export const updatePostTx = async (
+  uuid: string, postColumnsToUpdate: UpdatePostDTO,
 ) => {
-  const columns: {
-    toUpdate: string[],
-    toLeave: string[],
-    updateVal: string[],
-  } = {
-    toUpdate: [],
-    toLeave: [],
-    updateVal: [],
-  };
-
-  if (title !== undefined) {
-    columns.toUpdate.push('title');
-    columns.updateVal.push(title);
-  } else {
-    columns.toLeave.push('title');
-  }
-  if (content !== undefined) {
-    columns.toUpdate.push('content');
-    columns.updateVal.push(content);
-  } else {
-    columns.toLeave.push('content');
-  }
-  if (categoryId !== undefined) {
-    columns.toUpdate.push('category_id');
-    columns.updateVal.push(categoryId);
-  } else {
-    columns.toLeave.push('category_id');
-  }
-
-  return `
-  INSERT INTO ${process.env.MYSQL_DB as string}.post_history
-  (post_uuid, ${columns.toUpdate.join(', ')}${columns.toLeave.length !== 0 ? ', '.concat(columns.toLeave.join(', ')) : ''}, is_published, created_at)
-    SELECT
-      uuid, '${columns.updateVal.join('\', \'')}'${columns.toLeave.length !== 0 ? ', '.concat(columns.toLeave.join(', ')) : ''}, is_published, NOW()
-    FROM ${process.env.MYSQL_DB as string}.post
-    WHERE uuid=UUID_TO_BIN('${uuid}')`;
-};
-const createUpdateClause = (
-  { title, content, categoryId }: UpdatePostDTO,
-): string => {
-  const columnsToUpdate: string[] = [];
-  if (title !== undefined) {
-    columnsToUpdate.push('title');
-  }
-  if (content !== undefined) {
-    columnsToUpdate.push('content');
-  }
-  if (categoryId !== undefined) {
-    columnsToUpdate.push('category_id');
-  }
-  return columnsToUpdate.join(' = ?, ').concat(' = ?');
-};
-const makeUpdatePostQuery = (postColumnsToUpdate: UpdatePostDTO) => `
-UPDATE ${process.env.MYSQL_DB as string}.post
-SET ${createUpdateClause(postColumnsToUpdate)}
-WHERE uuid=UUID_TO_BIN(?)`;
-export const updatePostTx = async (uuid: string, postColumnsToUpdate: UpdatePostDTO) => {
-  const valuesToUpdate = Object.values(postColumnsToUpdate) as string[];
-  const updatePostHistoryQuery = historyQueryBuilder(uuid, postColumnsToUpdate);
+  const postEntity: PostEntity = {
+    uuid,
+    title: postColumnsToUpdate.title ?? null,
+    content: postColumnsToUpdate.content ?? null,
+    category_id: postColumnsToUpdate.categoryId ?? null,
+  } as PostEntity;
+  Object.assign(postEntity, postColumnsToUpdate);
+  console.log(postEntity, postColumnsToUpdate);
+  const { query, params } = buildUpdateModelQuery<PostEntity, keyof typeof postEntity>(
+    postEntity, 'post', uuid,
+  );
   await executeMultipleQueriesTx(
-    [
-      makeUpdatePostQuery(postColumnsToUpdate),
-      updatePostHistoryQuery,
-    ],
-    [
-      [...valuesToUpdate.flat(), uuid],
-      [],
-    ],
+    query, params,
   );
 };
 

@@ -52,7 +52,7 @@ router.route('/:post_uuid')
     }
   })
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  .put(async (req, res, next) => {
+  .patch(async (req, res, next) => {
     try {
       const { post_uuid: postUuid } = req.params;
       if (!postUuid || !validate(postUuid)) {
@@ -60,13 +60,11 @@ router.route('/:post_uuid')
       }
 
       // [TODO] subdivide http stat code - not updated, updated, ...
-      await updatePostTx(postUuid, req.body as UpdatePostDTO).then(() => {
+      await updatePostTx(postUuid, req.query as UpdatePostDTO).then(() => {
         mainPageCache.updatePostPreviewCache();
       });
 
-      res.status(201).json({
-        message: 'ok',
-      });
+      res.status(200).send('ok');
     } catch (e) {
       next(e);
     }
@@ -129,7 +127,7 @@ router.route('/:post_uuid/comments/:comment_uuid')
         next(new CustomError('invalid params', 400));
       }
       const paramsToUpdate = req.query as Partial<CommentEntity>;
-      await updateComment(paramsToUpdate, commentUuid);
+      await updateComment(paramsToUpdate, commentUuid, postUuid);
       res.status(200).send('ok');
     } catch (err) {
       console.error(err);

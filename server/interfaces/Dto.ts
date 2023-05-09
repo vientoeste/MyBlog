@@ -38,3 +38,9 @@ export interface CreateCommentDTO {
   content: string;
   postUuid: string;
 }
+
+export interface UpdateCommentDTO {
+  userId?: string;
+  content?: string;
+  postUuid?: string;
+}

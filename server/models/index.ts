@@ -80,32 +80,52 @@ const historyTable = (table: string) =>
 
 const primaryKeyName = (tableName: string, primaryKey: string) =>
   validate(primaryKey) ? tableName.concat('_uuid') : tableName.concat('_id');
-// const ;  
 
 export const buildUpdateModelQuery = <T, K extends keyof T>(
-  patch: Pick<T, K>,
+  dataToUpdate: Pick<T, K> & { [index: string]: string; },
   tableName: string,
   primaryKey: string,
 ): { query: string[], params: string[][] } => {
-  const keys = Object.keys(patch);
-  const values = Object.values(patch);
-  const setClause = keys.map((key) => `${key} = ?`).join(', ');
+  const valuesToUpdate = {};
+  const valuesNotToUpdate = {};
+  Object.entries(dataToUpdate).forEach(e => {
+    const [k, v] = e;
+    if (e[1] === null) {
+      Object.assign(valuesNotToUpdate, {
+        [k]: v,
+      });
+    } else if (e[0] !== 'uuid' && e[0] !== 'id' && !/_uuid/.test(e[0])) {
+      Object.assign(valuesToUpdate, {
+        [k]: v,
+      });
+    }
+  });
+
+  const columnsToUpdate = Object.keys(valuesToUpdate);
+  const recordsToUpdate = Object.values(valuesToUpdate);
+
   const updateRecordQuery = `
   UPDATE ${process.env.MYSQL_DB as string}.${tableName}
-  SET ${setClause}
+  SET ${columnsToUpdate.map((key) => `${key} = ?`).join(', ')}
   WHERE 1
-    AND ${validate(primaryKey) ? 'BIN_TO_UUID(uuid)' : 'id'} = ?`;
+  AND ${validate(primaryKey) ? 'BIN_TO_UUID(uuid)' : 'id'} = ?`;
 
-  // [TODO] complete
+  const keysNotToUpdate = Object.keys(valuesNotToUpdate);
+
   const insertHistoryQuery = `
   INSERT INTO ${process.env.MYSQL_DB as string}.${historyTable(tableName)}
-  (${primaryKeyName(tableName, primaryKey)}, ...
-  SELECT
-    ${validate(primaryKey) ? 'UUID_TO_BIN(?)' : '?'}, ...
+  (${primaryKeyName(tableName, primaryKey)}, ${keysNotToUpdate.join(', ')}${keysNotToUpdate.length > 0 ? ',' : ''} ${columnsToUpdate.join(', ')})
+    SELECT
+      ${validate(primaryKey) ? 'uuid' : 'id'}, ${keysNotToUpdate.concat(columnsToUpdate.map(() => '?')).join(', ')}
+    FROM ${process.env.MYSQL_DB as string}.${tableName}
+    WHERE ${validate(primaryKey) ? 'BIN_TO_UUID(uuid)' : 'id'} = ?
   `;
   return {
-    query: [updateRecordQuery],
-    params: [[...values, primaryKey] as string[]],
+    query: [updateRecordQuery, insertHistoryQuery],
+    params: [
+      [...recordsToUpdate, primaryKey] as string[],
+      [...recordsToUpdate, primaryKey] as string[],
+    ],
   };
 };
 

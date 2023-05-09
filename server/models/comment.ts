@@ -1,5 +1,5 @@
 import { executeSingleSelectQuery, executeMultipleQueriesTx, buildUpdateModelQuery } from '.';
-import { CommentDTO } from '../interfaces/Dto';
+import { CommentDTO, UpdateCommentDTO } from '../interfaces/Dto';
 import { CommentEntity } from '../interfaces/Entity';
 
 const newCommentInsert = `
@@ -65,12 +65,18 @@ export const deleteComment = async (commentUuid: string) => {
 };
 
 export const updateComment = async (
-  paramsToUpdate: Partial<CommentEntity>,
-  uuid: string,
+  paramsToUpdate: UpdateCommentDTO,
+  commentUuid: string,
+  postUuid: string,
 ) => {
-  const { query, params } = buildUpdateModelQuery<CommentEntity, keyof typeof paramsToUpdate>(
-    paramsToUpdate as Pick<CommentEntity, keyof typeof paramsToUpdate>,
-    'comment', uuid,
+  const commentEntity: CommentEntity = {
+    uuid: commentUuid,
+    post_uuid: postUuid,
+    user_id: paramsToUpdate.userId ?? null,
+    content: paramsToUpdate.content ?? null,
+  } as CommentEntity;
+  const { query, params } = buildUpdateModelQuery<CommentEntity, keyof typeof commentEntity>(
+    commentEntity, 'comment', commentUuid,
   );
   await executeMultipleQueriesTx(query, params);
 };
