@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "watch": "tsc -w",
-    "prestart": "node ../.scripts/clean-dist.js && tsc",
+    "prestart": "node ../.scripts/clean-dist.js server && tsc",
     "start": "node dist/app.js"
   },
   "repository": {

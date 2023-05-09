@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "prerender": "cd ../client && npm run build",
+    "build": "cd ../client && npm run build",
+    "prerender": "npm run build && node ../.scripts/clean-dist.js proxy",
     "render": "tsc && node ../.scripts/copy-client",
     "prestart": "npm run render",
     "start": "node dist/app.js"
