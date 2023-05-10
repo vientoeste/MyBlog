@@ -35,9 +35,13 @@ function Posts() {
     }
   }
 
+  function handleBackClick() {
+    setPosts(cachedPosts);
+  }
+
   return (
     <>
-      {posts.length === 1 ? <Post post={posts[0]} /> : <PostList posts={posts} handlePostClick={handlePostClick} />}
+      {posts.length === 1 ? <Post post={posts[0]} handleBackClick={handleBackClick} /> : <PostList posts={posts} handlePostClick={handlePostClick} />}
     </>
   );
 }
