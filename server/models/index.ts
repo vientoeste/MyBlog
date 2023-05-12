@@ -19,11 +19,10 @@ export const executeSingleSelectQuery = async <T>(
   query: string, bindedParam?: Knex.RawBinding[],
 ): Promise<T> => {
   if (!bindedParam) {
-    // [TODO] contribute knew for return type of knex.raw?
-    const v = (await connection.raw(query) as unknown[])[0] as T;
+    const v = (await connection.raw<T[]>(query))[0] as T;
     return v;
   }
-  const v = (await connection.raw(query, bindedParam) as unknown[])[0] as T;
+  const v = (await connection.raw<T[]>(query, bindedParam) as unknown[])[0] as T;
   return v;
 };
 
