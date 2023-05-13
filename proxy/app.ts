@@ -61,30 +61,31 @@ app.use('/api-docs', serve, setup(yaml.load(path.join(__dirname, '../swagger.yam
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 app.use('/api-proxy', async (req, res, next) => {
   const apiUrl = `${process.env.API_SERVER_URL as string}${req.url}`;
-  const headers = {
-    'Content-Type': 'application/x-www-form-urlencoded',
-    'x-api-key': process.env.PRIVATE_API_KEY,
-  };
   try {
+    axios.interceptors.request.use(config => {
+      config.headers['x-api-key'] = process.env.PRIVATE_API_KEY;
+      config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      return config;
+    });
     switch (req.method) {
       case 'GET':
-        const getRes = await axios.get(apiUrl, { headers });
+        const getRes = await axios.get(apiUrl);
         res.status(getRes.status).json(getRes.data);
         break;
       case 'POST':
-        const postRes = await axios.post(apiUrl, req.body, { headers });
+        const postRes = await axios.post(apiUrl, req.body);
         res.status(postRes.status).json(postRes.data);
         break;
       case 'DELETE':
-        const delRes = await axios.delete(apiUrl, { headers });
+        const delRes = await axios.delete(apiUrl);
         res.status(delRes.status).json(delRes.data);
         break;
       case 'PUT':
-        const putRes = await axios.put(apiUrl, req.body, { headers });
+        const putRes = await axios.put(apiUrl, req.body);
         res.status(putRes.status).json(putRes.data);
         break;
       case 'PATCH':
-        const patchRes = await axios.patch(apiUrl, { headers });
+        const patchRes = await axios.patch(apiUrl);
         res.status(patchRes.status).json(patchRes.data);
         break;
       default:
