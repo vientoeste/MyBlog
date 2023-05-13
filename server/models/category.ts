@@ -7,13 +7,14 @@ SELECT
   id, name
 FROM ${process.env.MYSQL_DB as string}.category`;
 export const fetchCategories = async (): Promise<CategoryDTO[]> => {
-  const categoryEntities = await executeSingleSelectQuery<CategoryEntity[]>(getCategoriesQuery);
+  const categoryEntities = await executeSingleSelectQuery<CategoryEntity>(getCategoriesQuery);
   if (!categoryEntities) {
     throw new Error('query error');
   }
   const categories = categoryEntities.map((category) => ({
     id: category.id,
     name: category.name,
+    description: category.description,
   }));
   return categories;
 };

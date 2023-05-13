@@ -2,19 +2,19 @@ export interface PostDTO {
   uuid: string;
   title: string;
   content: string;
-  categoryId: string;
+  categoryId: number;
 }
 
 export interface CreatePostDTO {
   title: string;
   content: string;
-  categoryId: string;
+  categoryId: number;
 }
 
 export interface UpdatePostDTO {
   title?: string;
   content?: string;
-  categoryId?: string;
+  categoryId?: number;
 }
 
 export interface CategoryDTO {
@@ -28,19 +28,19 @@ export interface CreateCategoryDTO {
 }
 
 export interface CommentDTO {
-  userId: string;
+  userId: number;
   content: string;
   createdAt: string;
 }
 
 export interface CreateCommentDTO {
-  userId: string;
+  userId: number;
   content: string;
   postUuid: string;
 }
 
 export interface UpdateCommentDTO {
-  userId?: string;
+  userId?: number;
   content?: string;
   postUuid?: string;
 }

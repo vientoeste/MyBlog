@@ -3,6 +3,7 @@ import { CategoryDTO, PostDTO } from '../interfaces/Dto';
 import { fetchPreviewPosts } from './post';
 import { fetchCategories } from './category';
 import { validate } from 'uuid';
+import { Nullable } from '../utils';
 
 export const connection = knex({
   client: 'mysql2',
@@ -17,12 +18,12 @@ export const connection = knex({
 
 export const executeSingleSelectQuery = async <T>(
   query: string, bindedParam?: Knex.RawBinding[],
-): Promise<T> => {
+): Promise<T[]> => {
   if (!bindedParam) {
-    const v = (await connection.raw<T[]>(query))[0] as T;
+    const v = (await connection.raw<T[]>(query))[0] as T[];
     return v;
   }
-  const v = (await connection.raw<T[]>(query, bindedParam) as unknown[])[0] as T;
+  const v = (await connection.raw<T[]>(query, bindedParam) as unknown[])[0] as T[];
   return v;
 };
 
@@ -80,8 +81,8 @@ const historyTable = (table: string) =>
 const primaryKeyName = (tableName: string, primaryKey: string) =>
   validate(primaryKey) ? tableName.concat('_uuid') : tableName.concat('_id');
 
-export const buildUpdateModelQuery = <T, K extends keyof T>(
-  dataToUpdate: Pick<T, K> & { [index: string]: string; },
+export const buildUpdateModelQuery = <T>(
+  dataToUpdate: Nullable<T>,
   tableName: string,
   primaryKey: string,
 ): { query: string[], params: string[][] } => {

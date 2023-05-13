@@ -1,6 +1,6 @@
 import { PostEntity } from '../interfaces/Entity';
 import { PostDTO, UpdatePostDTO } from '../interfaces/Dto';
-import { CustomError } from '../utils';
+import { CustomError, Nullable } from '../utils';
 import { executeSingleSelectQuery, executeMultipleQueriesTx, buildUpdateModelQuery } from '.';
 
 const newPostInsert = `
@@ -21,15 +21,15 @@ export const createNewPostTx = async (postUuid: string, title: string, content: 
 export const updatePostTx = async (
   uuid: string, postColumnsToUpdate: UpdatePostDTO,
 ) => {
-  const postEntity: PostEntity = {
+  const postEntity: Nullable<PostEntity> = {
     uuid,
     title: postColumnsToUpdate.title ?? null,
     content: postColumnsToUpdate.content ?? null,
     category_id: postColumnsToUpdate.categoryId ?? null,
-  } as PostEntity;
+  };
   Object.assign(postEntity, postColumnsToUpdate);
   console.log(postEntity, postColumnsToUpdate);
-  const { query, params } = buildUpdateModelQuery<PostEntity, keyof typeof postEntity>(
+  const { query, params } = buildUpdateModelQuery<PostEntity>(
     postEntity, 'post', uuid,
   );
   await executeMultipleQueriesTx(
@@ -47,7 +47,7 @@ WHERE 1
 ORDER BY updated_at DESC
 LIMIT 0, 5`;
 export const fetchPreviewPosts = async () => {
-  const postEntities = await executeSingleSelectQuery<PostEntity[]>(fetchPreviewPostsSQL);
+  const postEntities = await executeSingleSelectQuery<PostEntity>(fetchPreviewPostsSQL);
   if (!postEntities) {
     throw new Error('query error');
   }
@@ -73,7 +73,7 @@ LIMIT ${count === 0 ? '' : count.toString()}0, ${(count + 1).toString()}0`;
 export const fetchPostsByCategory = async (
   categoryId: string, count: number,
 ): Promise<PostDTO[]> => {
-  const postEntities = await executeSingleSelectQuery<PostEntity[]>(fetchPostsByCategorySQL(count), [categoryId]);
+  const postEntities = await executeSingleSelectQuery<PostEntity>(fetchPostsByCategorySQL(count), [categoryId]);
   if (!postEntities) {
     throw new Error('query error');
   }
@@ -94,7 +94,7 @@ WHERE 1
   AND is_published = 1
   AND uuid = UUID_TO_BIN(?)`;
 export const fetchSinglePost = async (uuid: string): Promise<PostDTO> => {
-  const postEntity = await executeSingleSelectQuery<PostEntity[]>(fetchSinglePostSQL, [uuid]);
+  const postEntity = await executeSingleSelectQuery<PostEntity>(fetchSinglePostSQL, [uuid]);
   if (!postEntity) {
     throw new Error('query error');
   }

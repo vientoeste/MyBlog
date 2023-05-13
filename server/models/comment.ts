@@ -1,6 +1,7 @@
 import { executeSingleSelectQuery, executeMultipleQueriesTx, buildUpdateModelQuery } from '.';
 import { CommentDTO, UpdateCommentDTO } from '../interfaces/Dto';
-import { CommentEntity } from '../interfaces/Entity';
+import { CommentEntity, UpdateCommentEntity } from '../interfaces/Entity';
+import { Nullable } from '../utils';
 
 const newCommentInsert = `
 INSERT INTO ${process.env.MYSQL_DB as string}.comment
@@ -32,7 +33,7 @@ WHERE 1
 export const fetchComments = async (
   postUuid: string,
 ): Promise<CommentDTO[]> => {
-  const commentEntities = await executeSingleSelectQuery<CommentEntity[]>(fetchCommentsSQL, [postUuid]);
+  const commentEntities = await executeSingleSelectQuery<CommentEntity>(fetchCommentsSQL, [postUuid]);
   if (!commentEntities) {
     throw new Error('query error');
   }
@@ -69,13 +70,13 @@ export const updateComment = async (
   commentUuid: string,
   postUuid: string,
 ) => {
-  const commentEntity: CommentEntity = {
+  const commentEntity: Nullable<UpdateCommentEntity> = {
     uuid: commentUuid,
     post_uuid: postUuid,
     user_id: paramsToUpdate.userId ?? null,
     content: paramsToUpdate.content ?? null,
-  } as CommentEntity;
-  const { query, params } = buildUpdateModelQuery<CommentEntity, keyof typeof commentEntity>(
+  };
+  const { query, params } = buildUpdateModelQuery<UpdateCommentEntity>(
     commentEntity, 'comment', commentUuid,
   );
   await executeMultipleQueriesTx(query, params);

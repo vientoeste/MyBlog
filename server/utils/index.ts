@@ -15,3 +15,11 @@ export class CustomError extends Error {
 
   status?: number;
 }
+
+export type Nullable<T> = {
+  [K in keyof T]: T[K] | null
+};
+
+export type NotNull<T> = {
+  [K in keyof T]: Exclude<T[K], null>
+};
