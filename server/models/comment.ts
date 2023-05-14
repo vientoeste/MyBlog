@@ -14,7 +14,7 @@ VALUES (UUID_TO_BIN(?), UUID_TO_BIN(?), ?, ?, ?)`;
 export const createNewCommentTx = async (
   commentUuid: string,
   postUuid: string,
-  userId: string,
+  userId: number,
   content: string,
   now: string,
 ) => {

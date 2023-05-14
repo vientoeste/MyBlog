@@ -43,7 +43,7 @@ router.route('/:id')
           message: 'invalid query string(not a number)',
         });
       }
-      const posts = fetchPostsByCategory(id, parseInt(count, 10));
+      const posts = fetchPostsByCategory(parseInt(id), parseInt(count, 10));
       res.status(200).json(posts);
     } catch (e) {
       console.error(e);

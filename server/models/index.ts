@@ -30,7 +30,7 @@ export const executeSingleSelectQuery = async <T>(
 const recursiveTx = async (
   trx: Knex.Transaction,
   queries: string[],
-  queryValues: string[][],
+  queryValues: (string | number)[][],
   queryCount = queries.length,
 ): Promise<void> => {
   const executeQueries = async (idx: number): Promise<void> => {
@@ -58,7 +58,7 @@ const recursiveTx = async (
 
 export const executeMultipleQueriesTx = async (
   queries: string[],
-  queryVals: string[][],
+  queryVals: (string | number)[][],
   queryCount = queries.length,
 ): Promise<void> => {
   if (queries.length !== queryCount || queryVals.length !== queryCount) {

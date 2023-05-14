@@ -11,7 +11,9 @@ const newPostHistoryInsert = `
 INSERT INTO ${process.env.MYSQL_DB as string}.post_history
 (post_uuid, title, content, category_id, created_at, is_published)
 VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, 1)`;
-export const createNewPostTx = async (postUuid: string, title: string, content: string, categoryId: string, now: string) => {
+export const createNewPostTx = async (
+  postUuid: string, title: string, content: string, categoryId: number, now: string
+) => {
   await executeMultipleQueriesTx(
     [newPostInsert, newPostHistoryInsert],
     [[postUuid, title, content, categoryId, now], [postUuid, title, content, categoryId, now]],
@@ -71,7 +73,7 @@ WHERE 1
 ORDER BY updated_at DESC
 LIMIT ${count === 0 ? '' : count.toString()}0, ${(count + 1).toString()}0`;
 export const fetchPostsByCategory = async (
-  categoryId: string, count: number,
+  categoryId: number, count: number,
 ): Promise<PostDTO[]> => {
   const postEntities = await executeSingleSelectQuery<PostEntity>(fetchPostsByCategorySQL(count), [categoryId]);
   if (!postEntities) {
