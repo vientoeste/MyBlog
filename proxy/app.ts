@@ -41,8 +41,6 @@ import morgan from 'morgan';
 import { serve, setup } from 'swagger-ui-express';
 import yaml from 'yamljs';
 
-import swaggerDocument from './swagger.json';
-
 const app = http2Express(express);
 
 const serverOption = {
