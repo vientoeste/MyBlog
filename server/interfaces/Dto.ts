@@ -20,6 +20,12 @@ export interface UpdatePostDTO {
 export interface CategoryDTO {
   id: number;
   name: string;
+  description: string;
+}
+
+export interface UpdateCategoryDTO {
+  name?: string,
+  description?: string
 }
 
 export interface CreateCategoryDTO {

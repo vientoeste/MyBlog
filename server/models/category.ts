@@ -1,6 +1,7 @@
-import { executeSingleSelectQuery, executeMultipleQueriesTx } from '.';
-import { CategoryDTO } from '../interfaces/Dto';
+import { executeSingleSelectQuery, executeMultipleQueriesTx, buildUpdateModelQuery } from '.';
+import { CategoryDTO, UpdateCategoryDTO } from '../interfaces/Dto';
 import { CategoryEntity } from '../interfaces/Entity';
+import { Nullable } from '../utils';
 
 const getCategoriesQuery = `
 SELECT
@@ -38,4 +39,18 @@ export const createNewCategoryTx = async (name: string, description: string) => 
     [newCategoryHistoryInsert],
     [[]],
   );
+};
+
+export const updateCategoryTx = async (
+  id: number, categoryColumnsToUpdate: UpdateCategoryDTO,
+) => {
+  const categoryEntity: Nullable<CategoryEntity> = {
+    id,
+    description: categoryColumnsToUpdate.description ?? null,
+    name: categoryColumnsToUpdate.name ?? null,
+  };
+  const { query, params } = buildUpdateModelQuery<CategoryEntity>(
+    categoryEntity, 'category', id,
+  );
+  await executeMultipleQueriesTx(query, params);
 };
