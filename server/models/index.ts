@@ -84,7 +84,7 @@ const primaryKeyName = (tableName: string, primaryKey: string) =>
 export const buildUpdateModelQuery = <T>(
   dataToUpdate: Nullable<T>,
   tableName: string,
-  primaryKey: string,
+  primaryKey: string | number,
 ): { query: string[], params: string[][] } => {
   const valuesToUpdate = {};
   const valuesNotToUpdate = {};
@@ -108,17 +108,17 @@ export const buildUpdateModelQuery = <T>(
   UPDATE ${process.env.MYSQL_DB as string}.${tableName}
   SET ${columnsToUpdate.map((key) => `${key} = ?`).join(', ')}
   WHERE 1
-  AND ${validate(primaryKey) ? 'BIN_TO_UUID(uuid)' : 'id'} = ?`;
+  AND ${validate(primaryKey as string) ? 'BIN_TO_UUID(uuid)' : 'id'} = ?`;
 
   const keysNotToUpdate = Object.keys(valuesNotToUpdate);
 
   const insertHistoryQuery = `
   INSERT INTO ${process.env.MYSQL_DB as string}.${historyTable(tableName)}
-  (${primaryKeyName(tableName, primaryKey)}, ${keysNotToUpdate.join(', ')}${keysNotToUpdate.length > 0 ? ',' : ''} ${columnsToUpdate.join(', ')})
+  (${primaryKeyName(tableName, primaryKey as string)}, ${keysNotToUpdate.join(', ')}${keysNotToUpdate.length > 0 ? ',' : ''} ${columnsToUpdate.join(', ')})
     SELECT
-      ${validate(primaryKey) ? 'uuid' : 'id'}, ${keysNotToUpdate.concat(columnsToUpdate.map(() => '?')).join(', ')}
+      ${validate(primaryKey as string) ? 'uuid' : 'id'}, ${keysNotToUpdate.concat(columnsToUpdate.map(() => '?')).join(', ')}
     FROM ${process.env.MYSQL_DB as string}.${tableName}
-    WHERE ${validate(primaryKey) ? 'BIN_TO_UUID(uuid)' : 'id'} = ?
+    WHERE ${validate(primaryKey as string) ? 'BIN_TO_UUID(uuid)' : 'id'} = ?
   `;
   return {
     query: [updateRecordQuery, insertHistoryQuery],
