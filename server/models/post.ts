@@ -12,7 +12,7 @@ INSERT INTO ${process.env.MYSQL_DB as string}.post_history
 (post_uuid, title, content, category_id, created_at, is_published)
 VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, 1)`;
 export const createNewPostTx = async (
-  postUuid: string, title: string, content: string, categoryId: number, now: string
+  postUuid: string, title: string, content: string, categoryId: number, now: string,
 ) => {
   await executeMultipleQueriesTx(
     [newPostInsert, newPostHistoryInsert],
