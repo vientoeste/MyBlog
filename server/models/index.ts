@@ -23,7 +23,7 @@ export const executeSingleSelectQuery = async <T>(
     const v = (await connection.raw<T[]>(query))[0] as T[];
     return v;
   }
-  const v = (await connection.raw<T[]>(query, bindedParam) as unknown[])[0] as T[];
+  const v = (await connection.raw<T[]>(query, bindedParam))[0] as T[];
   return v;
 };
 
