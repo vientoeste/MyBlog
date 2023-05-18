@@ -33,17 +33,24 @@ router.route('/')
 router.route('/:id')
   .get((req, res, next) => {
     try {
-      const { id } = req.params;
+      const { id: categoryId } = req.params;
+      if (!categoryId || Number.isNaN(parseInt(categoryId))) {
+        return res.status(400).json({
+          message: 'invalid category id',
+        });
+      }
+
       let { count } = req.query as { count: string };
       if (count === undefined) {
         count = '0';
       }
       if (Number.isNaN(parseInt(count, 10))) {
-        res.status(400).json({
+        return res.status(400).json({
           message: 'invalid query string(not a number)',
         });
       }
-      const posts = fetchPostsByCategory(parseInt(id), parseInt(count, 10));
+
+      const posts = fetchPostsByCategory(parseInt(categoryId), parseInt(count, 10));
       res.status(200).json(posts);
     } catch (e) {
       console.error(e);
@@ -54,8 +61,9 @@ router.route('/:id')
   .patch(async (req, res, next) => {
     try {
       const { id: categoryId } = req.params;
-      if (!categoryId || mainPageCache.getCategory().filter((e) => e.id === parseInt(categoryId)).length === 0) {
-        res.status(400).json({
+      if (!categoryId || Number.isNaN(parseInt(categoryId, 10))
+        || mainPageCache.getCategory().filter((e) => e.id === parseInt(categoryId)).length === 0) {
+        return res.status(400).json({
           message: 'invalid category id',
         });
       }
