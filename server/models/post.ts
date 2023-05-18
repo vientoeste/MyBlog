@@ -117,7 +117,7 @@ export const fetchSinglePost = async (uuid: string): Promise<PostDTO> => {
 
 const deletedPostHistoryInsertSQL = `
 INSERT INTO ${process.env.MYSQL_DB as string}.post_history
-(uuid, title, content, category_id, create_at, is_published, deleted_at)
+(uuid, title, content, category_id, created_at, is_published, deleted_at)
   SELECT uuid, title, content, category_id, created_at, is_published, NOW()
   FROM ${process.env.MYSQL_DB as string}.post
   WHERE 1
