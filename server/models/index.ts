@@ -3,7 +3,7 @@ import { CategoryDTO, PostDTO } from '../interfaces/Dto';
 import { fetchPreviewPosts } from './post';
 import { fetchCategories } from './category';
 import { validate } from 'uuid';
-import { Nullable } from '../utils';
+import { CustomError, Nullable } from '../utils';
 
 export const connection = knex({
   client: 'mysql2',
@@ -37,22 +37,13 @@ const recursiveTx = async (
     if (idx === queryCount) {
       return;
     }
-    try {
-      await trx.raw(queries[idx], queryValues[idx]);
-      await executeQueries(idx + 1);
-    } catch (error) {
-      throw error;
-    }
+    await trx.raw(queries[idx], queryValues[idx]);
+    await executeQueries(idx + 1);
   };
 
-  await trx.transaction(async (trx2) => {
-    try {
-      await executeQueries(0);
-      await trx2.commit();
-    } catch (error) {
-      await trx2.rollback();
-      throw error;
-    }
+  return trx.transaction(async (trx2) => {
+    await executeQueries(0);
+    await trx2.commit();
   });
 };
 
@@ -64,15 +55,13 @@ export const executeMultipleQueriesTx = async (
   if (queries.length !== queryCount || queryVals.length !== queryCount) {
     throw new Error('invalid param');
   }
-
-  try {
-    await connection.transaction(async (trx) => {
-      await recursiveTx(trx, queries, queryVals);
-    });
-  } catch (error) {
-    console.error('Transaction failed:', error);
-    throw error;
-  }
+  await connection.transaction(async (trx) => {
+    await recursiveTx(trx, queries, queryVals)
+      .then().catch(e => {
+        console.error(e);
+        throw new CustomError('Query failed: Tx rollbacked', 500);
+      });
+  });
 };
 
 const historyTable = (table: string) =>
