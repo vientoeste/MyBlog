@@ -6,7 +6,9 @@ import { Nullable } from '../utils';
 const getCategoriesQuery = `
 SELECT
   id, name
-FROM ${process.env.MYSQL_DB as string}.category`;
+FROM ${process.env.MYSQL_DB as string}.category
+WHERE 1
+  AND is_deleted = 0`;
 export const fetchCategories = async (): Promise<CategoryDTO[]> => {
   const categoryEntities = await executeSingleSelectQuery<CategoryEntity>(getCategoriesQuery);
   if (!categoryEntities) {
