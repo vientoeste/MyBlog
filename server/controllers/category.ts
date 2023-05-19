@@ -50,8 +50,15 @@ router.route('/:id')
         });
       }
 
-      const posts = fetchPostsByCategory(parseInt(categoryId), parseInt(count, 10));
-      res.status(200).json(posts);
+      fetchPostsByCategory(parseInt(categoryId), parseInt(count, 10))
+        .then((posts) => {
+          res.status(200).json(posts);
+        })
+        .catch(() => {
+          res.status(500).json({
+            message: 'internal error',
+          });
+        });
     } catch (e) {
       console.error(e);
       next(e);
