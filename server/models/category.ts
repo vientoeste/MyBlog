@@ -54,3 +54,29 @@ export const updateCategoryTx = async (
   );
   await executeMultipleQueriesTx(query, params);
 };
+
+const deletedCategoryHistoryInsertSQL = `
+INSERT INTO ${process.env.MYSQL_DB as string}.category_history
+(category_id, name, description, deleted_at)
+  SELECT id, name, description, NOW()
+  FROM ${process.env.MYSQL_DB as string}.category
+  WHERE 1
+    AND id = ?
+    AND is_deleted = 0
+`;
+const deleteCategorySQL = `
+UPDATE ${process.env.MYSQL_DB as string}.category
+SET is_deleted = 1
+WHERE 1
+  AND id = ?
+  AND is_deleted = 0
+`;
+export const deleteCategoryTx = async (
+  id: number,
+) => {
+  await executeMultipleQueriesTx([
+    deletedCategoryHistoryInsertSQL, deleteCategorySQL,
+  ], [
+    [id], [id],
+  ]);
+};

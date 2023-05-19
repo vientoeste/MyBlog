@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createNewCategoryTx, updateCategoryTx } from '../models/category';
+import { createNewCategoryTx, deleteCategoryTx, updateCategoryTx } from '../models/category';
 import { fetchPostsByCategory } from '../models/post';
 import { CreateCategoryDTO, UpdateCategoryDTO } from '../interfaces/Dto';
 import { CustomError } from '../utils';
@@ -76,6 +76,25 @@ router.route('/:id')
       }
       await updateCategoryTx(parseInt(categoryId), req.query as UpdateCategoryDTO);
       res.status(200).send('ok');
+    } catch (e) {
+      console.error(e);
+      next(e);
+    }
+  })
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  .delete(async (req, res, next) => {
+    try {
+      const { id: categoryId } = req.params;
+      if (!categoryId || Number.isNaN(categoryId)
+        || mainPageCache.getCategory().filter((e) => e.id === parseInt(categoryId)).length === 0) {
+        return res.status(400).json({
+          message: 'invalid category id',
+        });
+      }
+      await deleteCategoryTx(parseInt(categoryId)).then(() => {
+        mainPageCache.updateCategoryCache();
+        res.status(204).send();
+      });
     } catch (e) {
       console.error(e);
       next(e);
