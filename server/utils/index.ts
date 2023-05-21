@@ -23,3 +23,15 @@ export type Nullable<T> = {
 export type NotNull<T> = {
   [K in keyof T]: Exclude<T[K], null>
 };
+
+export const validateDtoForPatchReq = <T>(dto: Nullable<T>) => {
+  const keys = Object.keys(dto) as Array<keyof T>;
+  let count = 0;
+  keys.forEach((key) => {
+    if (dto[key] !== null) {
+      count += 1;
+    }
+  });
+
+  return count > 0 && count < keys.length;
+};

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { createNewCategoryTx, deleteCategoryTx, updateCategoryTx } from '../models/category';
 import { fetchPostsByCategory } from '../models/post';
-import { CreateCategoryDTO, UpdateCategoryDTO } from '../interfaces/Dto';
-import { CustomError } from '../utils';
+import { CategoryDTO, CreateCategoryDTO, UpdateCategoryDTO } from '../interfaces/Dto';
+import { CustomError, Nullable, validateDtoForPatchReq } from '../utils';
 import { mainPageCache } from '../app';
 
 const router = Router();
@@ -74,7 +74,16 @@ router.route('/:id')
           message: 'invalid category id',
         });
       }
-      await updateCategoryTx(parseInt(categoryId), req.query as UpdateCategoryDTO);
+      const categoryDTO = {
+        name: (req.query as UpdateCategoryDTO).name ?? null,
+        description: (req.query as UpdateCategoryDTO).description ?? null,
+      } as Nullable<CategoryDTO>;
+      if (!validateDtoForPatchReq<CategoryDTO>(categoryDTO)) {
+        return res.status(400).json({
+          message: 'invalid req body',
+        });
+      }
+      await updateCategoryTx(parseInt(categoryId), req.query);
       res.status(200).send('ok');
     } catch (e) {
       console.error(e);
