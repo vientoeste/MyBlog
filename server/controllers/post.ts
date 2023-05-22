@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { v5, validate } from 'uuid';
-import { CustomError } from '../utils';
+import { CustomError, Nullable, validateDtoForPatchReq } from '../utils';
 import { CreateCommentDTO, PostDTO, FetchPostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { getDateForDb } from '../utils';
 import { createNewPostTx, deletePostTx, fetchSinglePost, updatePostTx } from '../models/post';
@@ -59,8 +59,18 @@ router.route('/:post_uuid')
         throw new CustomError('invalid params', 400);
       }
 
+      const postDTO = {
+        title: (req.query as UpdatePostDTO).title ?? null,
+        content: (req.query as UpdatePostDTO).content ?? null,
+        categoryId: (req.query as UpdatePostDTO).categoryId ?? null,
+      } as Nullable<PostDTO>;
+      if (!validateDtoForPatchReq<PostDTO>(postDTO)) {
+        return res.status(400).json({
+          message: 'invalid req body',
+        });
+      }
       // [TODO] subdivide http stat code - not updated, updated, ...
-      await updatePostTx(postUuid, req.query as UpdatePostDTO).then(() => {
+      await updatePostTx(postUuid, postDTO).then(() => {
         mainPageCache.updatePostPreviewCache();
       });
 
