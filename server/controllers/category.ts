@@ -83,7 +83,7 @@ router.route('/:id')
           message: 'invalid req body',
         });
       }
-      await updateCategoryTx(parseInt(categoryId), req.query);
+      await updateCategoryTx(parseInt(categoryId), categoryDTO);
       res.status(200).send('ok');
     } catch (e) {
       console.error(e);

@@ -44,7 +44,7 @@ export const createNewCategoryTx = async (name: string, description: string) => 
 };
 
 export const updateCategoryTx = async (
-  id: number, categoryColumnsToUpdate: UpdateCategoryDTO,
+  id: number, categoryColumnsToUpdate: Nullable<CategoryEntity>,
 ) => {
   const categoryEntity: Nullable<CategoryEntity> = {
     id,
