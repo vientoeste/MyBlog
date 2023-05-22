@@ -1,5 +1,5 @@
 import knex, { Knex } from 'knex';
-import { CategoryDTO, PostDTO } from '../interfaces/Dto';
+import { CategoryDTO, FetchPostDTO } from '../interfaces/Dto';
 import { fetchPreviewPosts } from './post';
 import { fetchCategories } from './category';
 import { validate } from 'uuid';
@@ -119,7 +119,7 @@ export const buildUpdateModelQuery = <T>(
 };
 
 export class MainPageCache {
-  private postPreviews: PostDTO[] = [];
+  private postPreviews: FetchPostDTO[] = [];
 
   private categories: CategoryDTO[] = [];
 

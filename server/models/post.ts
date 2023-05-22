@@ -1,5 +1,5 @@
 import { PostEntity } from '../interfaces/Entity';
-import { PostDTO, UpdatePostDTO } from '../interfaces/Dto';
+import { FetchPostDTO, PostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { CustomError, Nullable } from '../utils';
 import { executeSingleSelectQuery, executeMultipleQueriesTx, buildUpdateModelQuery } from '.';
 
@@ -21,7 +21,7 @@ export const createNewPostTx = async (
 };
 
 export const updatePostTx = async (
-  uuid: string, postColumnsToUpdate: UpdatePostDTO,
+  uuid: string, postColumnsToUpdate: Nullable<PostDTO>,
 ) => {
   const postEntity: Nullable<PostEntity> = {
     uuid,
@@ -29,8 +29,7 @@ export const updatePostTx = async (
     content: postColumnsToUpdate.content ?? null,
     category_id: postColumnsToUpdate.categoryId ?? null,
   };
-  Object.assign(postEntity, postColumnsToUpdate);
-  console.log(postEntity, postColumnsToUpdate);
+
   const { query, params } = buildUpdateModelQuery<PostEntity>(
     postEntity, 'post', uuid,
   );
@@ -74,7 +73,7 @@ ORDER BY updated_at DESC
 LIMIT ${count === 0 ? '' : count.toString()}0, ${(count + 1).toString()}0`;
 export const fetchPostsByCategory = async (
   categoryId: number, count: number,
-): Promise<PostDTO[]> => {
+): Promise<FetchPostDTO[]> => {
   const postEntities = await executeSingleSelectQuery<PostEntity>(fetchPostsByCategorySQL(count), [categoryId]);
   if (!postEntities) {
     throw new Error('query error');
@@ -95,7 +94,7 @@ FROM ${process.env.MYSQL_DB as string}.post
 WHERE 1
   AND is_published = 1
   AND uuid = UUID_TO_BIN(?)`;
-export const fetchSinglePost = async (uuid: string): Promise<PostDTO> => {
+export const fetchSinglePost = async (uuid: string): Promise<FetchPostDTO> => {
   const postEntity = await executeSingleSelectQuery<PostEntity>(fetchSinglePostSQL, [uuid]);
   if (!postEntity) {
     throw new Error('query error');

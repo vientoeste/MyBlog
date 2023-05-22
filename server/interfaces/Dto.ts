@@ -1,11 +1,11 @@
-export interface PostDTO {
+export interface FetchPostDTO {
   uuid: string;
   title: string;
   content: string;
   categoryId: number;
 }
 
-export interface CreatePostDTO {
+export interface PostDTO {
   title: string;
   content: string;
   categoryId: number;

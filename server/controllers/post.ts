@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { v5, validate } from 'uuid';
 import { CustomError } from '../utils';
-import { CreateCommentDTO, CreatePostDTO, UpdatePostDTO } from '../interfaces/Dto';
+import { CreateCommentDTO, PostDTO, FetchPostDTO, UpdatePostDTO } from '../interfaces/Dto';
 import { getDateForDb } from '../utils';
 import { createNewPostTx, deletePostTx, fetchSinglePost, updatePostTx } from '../models/post';
 import { mainPageCache } from '../app';
@@ -17,7 +17,7 @@ router.route('/')
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   .post(async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { title, content, categoryId } = req.body as CreatePostDTO;
+      const { title, content, categoryId } = req.body as PostDTO;
       if (!title || !content || !categoryId) {
         throw new CustomError('invalid params', 400);
       }
