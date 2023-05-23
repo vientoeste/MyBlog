@@ -1,9 +1,4 @@
-export interface FetchPostDTO {
-  uuid: string;
-  title: string;
-  content: string;
-  categoryId: number;
-}
+import { Undefinedable } from '../utils';
 
 export interface PostDTO {
   title: string;
@@ -11,42 +6,37 @@ export interface PostDTO {
   categoryId: number;
 }
 
-export interface UpdatePostDTO {
-  title?: string;
-  content?: string;
-  categoryId?: number;
+export interface FetchPostDTO extends PostDTO {
+  uuid: string;
 }
+
+export type UpdatePostDTO = Undefinedable<PostDTO>;
 
 export interface CategoryDTO {
+  name: string;
+  description: string;
+}
+
+export interface FetchCategoryDTO extends CategoryDTO {
   id: number;
-  name: string;
-  description: string;
 }
 
-export interface UpdateCategoryDTO {
-  name?: string,
-  description?: string
-}
+export type UpdateCategoryDTO = Undefinedable<CategoryDTO>;
 
-export interface CreateCategoryDTO {
-  name: string;
-  description: string;
-}
+export type CreateCategoryDTO = CategoryDTO;
 
-export interface CommentDTO {
+export interface FetchCommentDTO {
   userId: number;
   content: string;
   createdAt: string;
 }
 
-export interface CreateCommentDTO {
+export interface CommentDTO {
   userId: number;
   content: string;
   postUuid: string;
 }
 
-export interface UpdateCommentDTO {
-  userId?: number;
-  content?: string;
-  postUuid?: string;
-}
+export type CreateCommentDTO = CommentDTO;
+
+export type UpdateCommentDTO = Undefinedable<CommentDTO>;

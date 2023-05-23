@@ -1,12 +1,11 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { v5, validate } from 'uuid';
 import { CustomError, Nullable, validateDtoForPatchReq } from '../utils';
-import { CreateCommentDTO, PostDTO, FetchPostDTO, UpdatePostDTO } from '../interfaces/Dto';
+import { CreateCommentDTO, PostDTO, UpdatePostDTO, UpdateCommentDTO, CommentDTO } from '../interfaces/Dto';
 import { getDateForDb } from '../utils';
 import { createNewPostTx, deletePostTx, fetchSinglePost, updatePostTx } from '../models/post';
 import { mainPageCache } from '../app';
 import { createNewCommentTx, deleteComment, fetchComments, updateComment } from '../models/comment';
-import { CommentEntity } from '../interfaces/Entity';
 
 const router = Router();
 
@@ -59,10 +58,11 @@ router.route('/:post_uuid')
         throw new CustomError('invalid params', 400);
       }
 
+      const queryString = req.query as UpdatePostDTO;
       const postDTO = {
-        title: (req.query as UpdatePostDTO).title ?? null,
-        content: (req.query as UpdatePostDTO).content ?? null,
-        categoryId: (req.query as UpdatePostDTO).categoryId ?? null,
+        title: queryString.title ?? null,
+        content: queryString.content ?? null,
+        categoryId: queryString.categoryId ?? null,
       } as Nullable<PostDTO>;
       if (!validateDtoForPatchReq<PostDTO>(postDTO)) {
         return res.status(400).json({
@@ -136,8 +136,13 @@ router.route('/:post_uuid/comments/:comment_uuid')
       if (!validate(commentUuid) || !validate(postUuid)) {
         next(new CustomError('invalid params', 400));
       }
-      const paramsToUpdate = req.query as Partial<CommentEntity>;
-      await updateComment(paramsToUpdate, commentUuid, postUuid);
+      const queryString = req.query as UpdateCommentDTO;
+      const commentDTO = {
+        userId: queryString.userId ?? null,
+        content: queryString.content ?? null,
+        postUuid,
+      } as Nullable<CommentDTO>;
+      await updateComment(commentDTO, commentUuid, postUuid);
       res.status(200).send('ok');
     } catch (err) {
       console.error(err);

@@ -74,9 +74,10 @@ router.route('/:id')
           message: 'invalid category id',
         });
       }
+      const queryString = req.query as UpdateCategoryDTO;
       const categoryDTO = {
-        name: (req.query as UpdateCategoryDTO).name ?? null,
-        description: (req.query as UpdateCategoryDTO).description ?? null,
+        name: queryString.name ?? null,
+        description: queryString.description ?? null,
       } as Nullable<CategoryDTO>;
       if (!validateDtoForPatchReq<CategoryDTO>(categoryDTO)) {
         return res.status(400).json({

@@ -1,5 +1,5 @@
 import { executeSingleSelectQuery, executeMultipleQueriesTx, buildUpdateModelQuery } from '.';
-import { CategoryDTO, UpdateCategoryDTO } from '../interfaces/Dto';
+import { CategoryDTO, FetchCategoryDTO } from '../interfaces/Dto';
 import { CategoryEntity } from '../interfaces/Entity';
 import { Nullable } from '../utils';
 
@@ -9,7 +9,7 @@ SELECT
 FROM ${process.env.MYSQL_DB as string}.category
 WHERE 1
   AND is_deleted = 0`;
-export const fetchCategories = async (): Promise<CategoryDTO[]> => {
+export const fetchCategories = async (): Promise<FetchCategoryDTO[]> => {
   const categoryEntities = await executeSingleSelectQuery<CategoryEntity>(getCategoriesQuery);
   if (!categoryEntities) {
     throw new Error('query error');
@@ -44,7 +44,7 @@ export const createNewCategoryTx = async (name: string, description: string) => 
 };
 
 export const updateCategoryTx = async (
-  id: number, categoryColumnsToUpdate: Nullable<CategoryEntity>,
+  id: number, categoryColumnsToUpdate: Nullable<CategoryDTO>,
 ) => {
   const categoryEntity: Nullable<CategoryEntity> = {
     id,

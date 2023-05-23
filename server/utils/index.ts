@@ -24,6 +24,10 @@ export type NotNull<T> = {
   [K in keyof T]: Exclude<T[K], null>
 };
 
+export type Undefinedable<T> = {
+  [K in keyof T]: T[K] | undefined
+};
+
 export const validateDtoForPatchReq = <T>(dto: Nullable<T>) => {
   const keys = Object.keys(dto) as Array<keyof T>;
   let count = 0;

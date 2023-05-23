@@ -1,5 +1,5 @@
 import { PostEntity } from '../interfaces/Entity';
-import { FetchPostDTO, PostDTO, UpdatePostDTO } from '../interfaces/Dto';
+import { FetchPostDTO, PostDTO } from '../interfaces/Dto';
 import { CustomError, Nullable } from '../utils';
 import { executeSingleSelectQuery, executeMultipleQueriesTx, buildUpdateModelQuery } from '.';
 

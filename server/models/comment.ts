@@ -1,5 +1,5 @@
 import { executeSingleSelectQuery, executeMultipleQueriesTx, buildUpdateModelQuery } from '.';
-import { CommentDTO, UpdateCommentDTO } from '../interfaces/Dto';
+import { CommentDTO, FetchCommentDTO } from '../interfaces/Dto';
 import { CommentEntity, UpdateCommentEntity } from '../interfaces/Entity';
 import { Nullable } from '../utils';
 
@@ -32,7 +32,7 @@ WHERE 1
   AND is_deleted = 0`;
 export const fetchComments = async (
   postUuid: string,
-): Promise<CommentDTO[]> => {
+): Promise<FetchCommentDTO[]> => {
   const commentEntities = await executeSingleSelectQuery<CommentEntity>(fetchCommentsSQL, [postUuid]);
   if (!commentEntities) {
     throw new Error('query error');
@@ -66,15 +66,15 @@ export const deleteComment = async (commentUuid: string) => {
 };
 
 export const updateComment = async (
-  paramsToUpdate: UpdateCommentDTO,
+  commentDTO: Nullable<CommentDTO>,
   commentUuid: string,
   postUuid: string,
 ) => {
   const commentEntity: Nullable<UpdateCommentEntity> = {
     uuid: commentUuid,
     post_uuid: postUuid,
-    user_id: paramsToUpdate.userId ?? null,
-    content: paramsToUpdate.content ?? null,
+    user_id: commentDTO.userId ?? null,
+    content: commentDTO.content ?? null,
   };
   const { query, params } = buildUpdateModelQuery<UpdateCommentEntity>(
     commentEntity, 'comment', commentUuid,
