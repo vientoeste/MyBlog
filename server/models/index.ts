@@ -70,6 +70,12 @@ const historyTable = (table: string) =>
 const primaryKeyName = (tableName: string, primaryKey: string) =>
   validate(primaryKey) ? tableName.concat('_uuid') : tableName.concat('_id');
 
+/**
+ * @param dataToUpdate Nullable<not undefined dto>
+ * @param tableName name of table to update
+ * @param primaryKey PK of DB(uuid or id)
+ * @returns 
+ */
 export const buildUpdateModelQuery = <T>(
   dataToUpdate: Nullable<T>,
   tableName: string,
