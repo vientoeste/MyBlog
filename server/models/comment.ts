@@ -38,9 +38,11 @@ export const fetchComments = async (
     throw new Error('query error');
   }
   const comments = commentEntities.map((comment) => ({
+    uuid: comment.uuid,
     userId: comment.user_id,
     content: comment.content,
     createdAt: comment.created_at,
+    postUuid: comment.post_uuid,
   }));
   return comments;
 };

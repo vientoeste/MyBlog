@@ -25,16 +25,15 @@ export type UpdateCategoryDTO = Undefinedable<CategoryDTO>;
 
 export type CreateCategoryDTO = CategoryDTO;
 
-export interface FetchCommentDTO {
-  userId: number;
-  content: string;
-  createdAt: string;
-}
-
 export interface CommentDTO {
   userId: number;
   content: string;
   postUuid: string;
+}
+
+export interface FetchCommentDTO extends CommentDTO {
+  uuid: string;
+  createdAt: string;
 }
 
 export type CreateCommentDTO = CommentDTO;
