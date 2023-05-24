@@ -142,6 +142,11 @@ router.route('/:post_uuid/comments/:comment_uuid')
         content: queryString.content ?? null,
         postUuid,
       } as Nullable<CommentDTO>;
+      if (!validateDtoForPatchReq(commentDTO)) {
+        return res.status(400).json({
+          message: 'invalid req body',
+        });
+      }
       await updateComment(commentDTO, commentUuid, postUuid);
       res.status(200).send('ok');
     } catch (err) {

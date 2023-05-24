@@ -31,7 +31,7 @@ export type Undefinedable<T> = {
 export const validateDtoForPatchReq = <T>(dto: Nullable<T>) => {
   const keys = Object.keys(dto) as Array<keyof T>;
   let count = 0;
-  keys.forEach((key) => {
+  keys.filter((e) => e.toString().toLowerCase().match(/uuid/g) !== null).forEach((key) => {
     if (dto[key] !== null) {
       count += 1;
     }
