@@ -64,15 +64,13 @@ INSERT INTO ${process.env.MYSQL_DB as string}.category_history
   FROM ${process.env.MYSQL_DB as string}.category
   WHERE 1
     AND id = ?
-    AND is_deleted = 0
-`;
+    AND is_deleted = 0`;
 const deleteCategorySQL = `
 UPDATE ${process.env.MYSQL_DB as string}.category
 SET is_deleted = 1
 WHERE 1
   AND id = ?
-  AND is_deleted = 0
-`;
+  AND is_deleted = 0`;
 export const deleteCategoryTx = async (
   id: number,
 ) => {

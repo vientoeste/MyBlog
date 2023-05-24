@@ -53,13 +53,11 @@ INSERT INTO ${process.env.MYSQL_DB as string}.comment_history
   SELECT
     uuid, post_uuid, user_id, content, created_at, NOW()
   FROM ${process.env.MYSQL_DB as string}.comment
-  WHERE uuid=UUID_TO_BIN(?)
-`;
+  WHERE uuid=UUID_TO_BIN(?)`;
 const deleteCommentSQL = `
 UPDATE ${process.env.MYSQL_DB as string}.comment
 SET is_deleted = 1
-WHERE uuid=UUID_TO_BIN(?) and is_deleted = 0
-`;
+WHERE uuid=UUID_TO_BIN(?) and is_deleted = 0`;
 export const deleteComment = async (commentUuid: string) => {
   await executeMultipleQueriesTx(
     [deletedCommentHistoryInsertSQL, deleteCommentSQL],

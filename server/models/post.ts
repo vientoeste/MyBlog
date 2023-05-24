@@ -121,15 +121,13 @@ INSERT INTO ${process.env.MYSQL_DB as string}.post_history
   FROM ${process.env.MYSQL_DB as string}.post
   WHERE 1
     AND uuid = UUID_TO_BIN(?)
-    AND is_deleted = 0
-`;
+    AND is_deleted = 0`;
 const deletePostSQL = `
 UPDATE ${process.env.MYSQL_DB as string}.post
 SET is_deleted = 1
 WHERE 1
   AND uuid = UUID_TO_BIN(?)
-  AND is_deleted = 0
-`;
+  AND is_deleted = 0`;
 export const deletePostTx = async (postUuid: string) => {
   await executeMultipleQueriesTx(
     [deletedPostHistoryInsertSQL, deletePostSQL],
